@@ -18,7 +18,7 @@ async fn main() -> Result<(), Error> {
     while let Some(update) = stream.next().await {
         // If the received update contains a new message...
         let update = update?;
-        println!("{:?}", update);
+        println!("----- {:?}", update);
         if let UpdateKind::Message(message) = update.kind {
             if let MessageKind::Text { ref data, .. } = message.kind {
                 // Print received text message to stdout.
@@ -28,6 +28,18 @@ async fn main() -> Result<(), Error> {
                 api.send(message.text_reply(format!(
                     "Hi, {}! You just wrote '{}'",
                     &message.from.first_name, data
+                )))
+                .await?;
+            }
+        } else if let UpdateKind::ChannelPost(post) = update.kind {            
+            if let MessageKind::Text { ref data, .. } = post.kind {
+                // Print received text message to stdout.
+                println!("<{}>: {}", "???", data);
+
+                // Answer message with "Hi".
+                api.send(post.text_reply(format!(
+                    "Hi, {}! You just wrote '{}'",
+                    "???", data
                 )))
                 .await?;
             }
