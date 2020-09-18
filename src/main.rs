@@ -1,5 +1,8 @@
 //  Telegram Bot to flash and test PineTime firmware remotely
-//  Enter "/mybots", select "PineTime Bot", select "Edit Commands", enter "flash - flash 0x0 https://.../firmware.bin"
+//  Chat with BotFather, create bot "PineTime Bot"
+//  Enter "/mybots", select "PineTime Bot"
+//  Select "Bot Settings", "Inline Mode", "Turn Inline Mode On"
+//  Select "Edit Commands", enter "flash - flash 0x0 https://.../firmware.bin"
 use std::env;
 
 use futures::StreamExt;
@@ -15,6 +18,7 @@ async fn main() -> Result<(), Error> {
     while let Some(update) = stream.next().await {
         // If the received update contains a new message...
         let update = update?;
+        println!("{:?}", update);
         if let UpdateKind::Message(message) = update.kind {
             if let MessageKind::Text { ref data, .. } = message.kind {
                 // Print received text message to stdout.
