@@ -1,7 +1,6 @@
 //  Telegram Bot to flash and test PineTime firmware remotely
 //  Chat with BotFather, create bot "PineTime Bot"
 //  Enter "/mybots", select "PineTime Bot"
-//  Select "Bot Settings", "Inline Mode", "Turn Inline Mode On"
 //  Select "Edit Commands", enter "flash - flash 0x0 https://.../firmware.bin"
 use std::env;
 
@@ -21,25 +20,13 @@ async fn main() -> Result<(), Error> {
         println!("----- {:?}", update);
         if let UpdateKind::Message(message) = update.kind {
             if let MessageKind::Text { ref data, .. } = message.kind {
-                // Print received text message to stdout.
-                println!("<{}>: {}", &message.from.first_name, data);
+                // Show received message
+                println!("-- <{}>: {}", &message.from.first_name, data);
 
-                // Answer message with "Hi".
+                // Respond to message
                 api.send(message.text_reply(format!(
-                    "Hi, {}! You just wrote '{}'",
-                    &message.from.first_name, data
-                )))
-                .await?;
-            }
-        } else if let UpdateKind::ChannelPost(post) = update.kind {            
-            if let MessageKind::Text { ref data, .. } = post.kind {
-                // Print received text message to stdout.
-                println!("<{}>: {}", "???", data);
-
-                // Answer message with "Hi".
-                api.send(post.text_reply(format!(
-                    "Hi, {}! You just wrote '{}'",
-                    "???", data
+                    "Flashing to PineTime at address {}...",
+                    data
                 )))
                 .await?;
             }
