@@ -1,3 +1,5 @@
+//  Telegram Bot to flash and test PineTime firmware remotely
+//  Enter "/mybots", select "PineTime Bot", select "Edit Commands", enter "flash - flash 0x0 https://.../firmware.bin"
 use std::env;
 
 use futures::StreamExt;
