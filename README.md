@@ -1,6 +1,8 @@
 # remote-pinetime-bot
 Telegram Bot to flash and test PineTime firmware remotely
 
+## Telegram Commands
+
 To flash MCUBoot Bootloader 5.0.4 via Telegram...
 
 ```
@@ -19,6 +21,12 @@ To flash Rust on RIOT...
 /flash 0x0 https://github.com/lupyuen/pinetime-rust-riot/releases/download/v1.0.3/PineTime.bin
 ```
 
+Don't pass URLs for artifacts created by GitHub Actions. They require login and the Telegram Bot will be blocked.
+
+Instead, copy the artifacts and upload them under "Releases", which is not protected by login.
+
+## Start Telegram Bot
+
 To run Telegram Bot...
 
 ```bash
@@ -32,6 +40,8 @@ do
     sleep 30
 done
 ```
+
+## Live Video Stream
 
 To live stream Raspberry Pi camera to YouTube...
 
