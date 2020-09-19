@@ -81,43 +81,67 @@ async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<()> {
 
     //  Download the firmware
     match download_file(firmware, &tmp_dir).await {
-        Err(_) => {
+        Err(_) => {  //  Unable to download
             api.send(message.text_reply(format!(
                 "Unable to download {}", firmware
             )))
             .await ? ;
             Ok(())
         }
-        Ok(path) => {
-            println!("path={}", path);
+        Ok(path) => {  //  Download OK
             //  Flash the firmware and reboot PineTime
-            flash_firmware(addr, &path).await ? ;
-            Ok(())
+            println!("path={}", path);
+            match flash_firmware(addr, &path).await {
+                Err(err) => {  //  Flash failed
+                    api.send(message.text_reply(format!(
+                        "Error: {}", err
+                    )))
+                    .await ? ;
+                    Ok(())        
+                }
+                Ok(output) => {  //  Flash OK
+                    //  Show the output
+                    api.send(message.text_reply(output)).await ? ;
+                    Ok(())
+                }
+            }
         }
     }
     //  Upon exit, files in tmp_dir are deleted
 }
 
 /// Flash the downloaded firmware to PineTime at the address
-async fn flash_firmware(addr: &str, path: &str) -> Result<()> {
+async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
+    //  $HOME/pinetime-updater/xpack-openocd/bin/openocd
+    //  -c ' set filename "/tmp/mynewt_nosemi.elf.bin" ' 
+    //  -c ' set address  "0x0" ' 
+    //  -f $HOME/pinetime-updater/scripts/swd-stlink.ocd 
+    //  -f $HOME/pinetime-updater/scripts/flash-program.ocd
+    let updater_path = env::var("HOME").expect("HOME not set") + "/pinetime-updater";
+    let output = std::process::Command
+        ::new(updater_path.clone() + "/xpack-openocd/bin/openocd")
+        .arg("-c")
+        .arg("set filename \"".to_string() + path + "\"")
+        .arg("-c")
+        .arg("set address \"".to_string() + addr + "\"")
+        .arg("-f")
+        .arg(updater_path.clone() + "/scripts/swd-stlink.ocd")
+        .arg("-f")
+        .arg(updater_path.clone() + "/scripts/flash-program.ocd")
+        .output() ? ;
+    /*
     let output = std::process::Command
         ::new("ls")
         .arg("-l")
         .arg(path)
         .output() ? ;
-
+    */
     if !output.status.success() {
         error_chain::bail!("Command executed with failing error code");
     }
     let output = String::from_utf8(output.stdout).unwrap();
     println!("Output: {}", output);
-
-    /*
-    String::from_utf8(output.stdout) ?
-        .lines()
-        .for_each(|x| println!("{:?}", x));    
-    */
-    Ok(())
+    Ok(output)
 }
 
 /// Download the URL to the temporary directory. Returns the downloaded pathname.
