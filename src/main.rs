@@ -118,7 +118,7 @@ async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
     //  -c ' set address  "0x0" ' 
     //  -f $HOME/pinetime-updater/scripts/swd-stlink.ocd 
     //  -f $HOME/pinetime-updater/scripts/flash-program.ocd
-    let updater_path = env::var("HOME").expect("HOME not set") + "pinetime-updater";
+    let updater_path = env::var("HOME").expect("HOME not set") + "/pinetime-updater";
     //  let updater_path = env::var("HOME").expect("HOME not set") + "/pinetime/pinetime-updater";
     let output = std::process::Command
         ::new(updater_path.clone() + "/xpack-openocd/bin/openocd")
