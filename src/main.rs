@@ -89,6 +89,10 @@ async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<()> {
         }
         Ok(path) => {  //  Download OK
             //  Flash the firmware and reboot PineTime
+            api.send(message.text_reply(format!(
+                "Downloaded {}", firmware
+            )))
+            .await ? ;
             println!("path={}", path);
             match flash_firmware(addr, &path).await {
                 Err(err) => {  //  Flash failed
@@ -101,7 +105,7 @@ async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<()> {
                 }
                 Ok(output) => {  //  Flash OK
                     //  Show the output
-                    api.send(message.text_reply(output)).await ? ;
+                    api.send(message.text_reply("Output: ".to_string() + &output)).await ? ;
                     Ok(())
                 }
             }
@@ -155,6 +159,7 @@ async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
         let error = String::from_utf8(output.stderr).unwrap();
         error_chain::bail!(error);
     }
+    println!("Output: {:?}", output);
     let output = String::from_utf8(output.stdout).unwrap();
     println!("Output: {}", output);
     Ok(output)
