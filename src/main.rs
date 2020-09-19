@@ -2,7 +2,7 @@
 //  Chat with BotFather, create bot "PineTime Bot"
 //  Enter "/mybots", select "PineTime Bot"
 //  Select "Edit Commands", enter "flash - flash 0x0 https://.../firmware.bin"
-use std::{env, string::String};
+use std::{env, fs::File, string::String};
 use futures::StreamExt;
 use telegram_bot::*;
 use error_chain::error_chain;
@@ -131,8 +131,8 @@ async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
     //  -c ' set address  "0x0" ' 
     //  -f $HOME/pinetime-updater/scripts/swd-stlink.ocd 
     //  -f $HOME/pinetime-updater/scripts/flash-program.ocd
-    let updater_path = env::var("HOME").expect("HOME not set") + "/pinetime-updater";
-    //  let updater_path = env::var("HOME").expect("HOME not set") + "/pinetime/pinetime-updater";
+    //  let updater_path = env::var("HOME").expect("HOME not set") + "/pinetime-updater";  //  Pi
+    let updater_path = env::var("HOME").expect("HOME not set") + "/pinetime/pinetime-updater";  //  Mac
     let output = std::process::Command
         //  ::new(updater_path.clone() + "/openocd-spi/bin/openocd")  //  Pi
         ::new(updater_path.clone() + "/xpack-openocd/bin/openocd")  //  ST-Link
@@ -181,8 +181,8 @@ async fn download_file(url: &str, tmp_dir: &tempfile::TempDir) -> Result<String>
 
     let fname = tmp_dir.path().join(fname);
     println!("will be located under: '{:?}'", fname);
-    let mut dest = std::fs::File::create(fname.clone()) ? ;
-    let content = response.text().await ? ;
-    std::io::copy(&mut content.as_bytes(), &mut dest) ? ;
+    let mut dest = File::create(fname.clone()) ? ;
+    let content = response.bytes().await ? ;
+    std::io::copy(&mut content.as_ref(), &mut dest) ? ;
     Ok(fname.to_str().unwrap().to_string())
 }

@@ -1,6 +1,18 @@
 # remote-pinetime-bot
 Telegram Bot to flash and test PineTime firmware remotely
 
+To flash MCUBoot Bootloader 5.0.4 via Telegram...
+
+```
+/flash 0x0 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v5.0.4/mynewt.elf.bin
+```
+
+To flash older MCUBoot Bootloader 4.1.7 via Telegram...
+
+```
+/flash 0x0 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v4.1.7/mynewt_nosemi.elf.bin
+```
+
 To run Telegram Bot...
 
 ```bash
@@ -25,6 +37,4 @@ raspivid -o - -t 0 -vf -hf -fps 30 -b 6000000 | \
     -f flv rtmp://a.rtmp.youtube.com/live2/YOUR_YOUTUBE_STREAM_KEY
 ```
 
-Based on
-
-https://www.makeuseof.com/tag/live-stream-youtube-raspberry-pi/
+Based on https://www.makeuseof.com/tag/live-stream-youtube-raspberry-pi/
