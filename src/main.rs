@@ -112,6 +112,15 @@ async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<()> {
 
 /// Flash the downloaded firmware to PineTime at the address
 async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
+    //  For Pi:
+    //  cd $HOME/pinetime-updater
+    //  openocd-spi/bin/openocd 
+    //  -c ' set filename "/tmp/mynewt_nosemi.elf.bin" ' 
+    //  -c ' set address  "0x0" ' 
+    //  -f scripts/swd-pi.ocd 
+    //  -f scripts/flash-program.ocd
+
+    //  For ST-Link:
     //  cd $HOME/pinetime-updater
     //  xpack-openocd/bin/openocd
     //  -c ' set filename "/tmp/mynewt_nosemi.elf.bin" ' 
@@ -121,15 +130,16 @@ async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
     let updater_path = env::var("HOME").expect("HOME not set") + "/pinetime-updater";
     //  let updater_path = env::var("HOME").expect("HOME not set") + "/pinetime/pinetime-updater";
     let output = std::process::Command
-        ::new(updater_path.clone() + "/xpack-openocd/bin/openocd")
+        ::new(updater_path.clone() + "/openocd-spi/bin/openocd")  //  Pi
+        //  ::new(updater_path.clone() + "/xpack-openocd/bin/openocd")  //  ST-Link
         .current_dir(updater_path)
         .arg("-c")
         .arg("set filename \"".to_string() + path + "\"")
         .arg("-c")
         .arg("set address \"".to_string() + addr + "\"")
         .arg("-f")
-        .arg("scripts/swd-pi.ocd")
-        //  .arg("scripts/swd-stlink.ocd")
+        .arg("scripts/swd-pi.ocd")  //  Pi
+        //  .arg("scripts/swd-stlink.ocd")  //  ST-Link
         .arg("-f")
         .arg("scripts/flash-program.ocd")
         .output() ? ;
