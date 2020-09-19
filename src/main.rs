@@ -11,7 +11,6 @@ use error_chain::error_chain;
 error_chain!{
     foreign_links {
         Io(std::io::Error);
-        //Utf8(std::string::Error);
         Reqwest(reqwest::Error);
         Telegram(telegram_bot::Error);
     }
@@ -60,7 +59,7 @@ async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<()> {
     if cmd != "/flash" || split.len() != 3 {
         //  Unknown command
         api.send(message.text_reply(format!(
-            "Unknown command {}. Try /flash 0x0 https://.../firmware.bin",
+            "Unknown command {}. Try /flash 0x0 https://github.com/JF002/Pinetime/releases/download/0.8.1-develop/pinetime-app-0.8.1-develop.bin",
             cmd
         )))
         .await ? ;
