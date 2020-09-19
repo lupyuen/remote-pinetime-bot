@@ -13,6 +13,12 @@ To flash older MCUBoot Bootloader 4.1.7 via Telegram...
 /flash 0x0 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v4.1.7/mynewt_nosemi.elf.bin
 ```
 
+To flash Rust on RIOT...
+
+```
+/flash 0x0 https://github.com/lupyuen/pinetime-rust-riot/releases/download/v1.0.3/PineTime.bin
+```
+
 To run Telegram Bot...
 
 ```bash
