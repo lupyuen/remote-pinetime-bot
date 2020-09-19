@@ -11,3 +11,6 @@ telegram-bot = "0.7"
 futures = "0.3"
 tokio = { version = "0.2", features = ["macros", "time", "fs"] }
 tracing-subscriber = "0.2.12"
+tempfile = "3.1.0"
+reqwest = "0.10.8"
+error-chain = "0.12.4"

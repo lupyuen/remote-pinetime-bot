@@ -2,14 +2,23 @@
 //  Chat with BotFather, create bot "PineTime Bot"
 //  Enter "/mybots", select "PineTime Bot"
 //  Select "Edit Commands", enter "flash - flash 0x0 https://.../firmware.bin"
-use std::env;
-
+use std::{env, string::String};
 use futures::StreamExt;
 use telegram_bot::*;
+use error_chain::error_chain;
+
+//  Define the error types
+error_chain!{
+    foreign_links {
+        Io(std::io::Error);
+        Reqwest(reqwest::Error);
+        Telegram(telegram_bot::Error);
+    }
+}
 
 /// Listen for commands and handle them
 #[tokio::main]
-async fn main() -> Result<(), Error> {
+async fn main() -> Result<()> {
     let token = env::var("TELEGRAM_BOT_TOKEN").expect("TELEGRAM_BOT_TOKEN not set");
     let api = Api::new(token);
 
@@ -34,7 +43,7 @@ async fn main() -> Result<(), Error> {
 }
 
 /// Handle a command e.g. "flash - flash 0x0 https://.../firmware.bin"
-async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<(), Error> {
+async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<()> {
     //  Remove leading and trailing spaces. Replace multiple spaces by 1.
     let cmd = cmd
         .trim_start()
@@ -47,7 +56,7 @@ async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<(), E
     let split: Vec<&str> = cmd.split(' ').collect();
     let cmd = split[0];
 
-    if cmd != "/flash" {
+    if cmd != "/flash" || split.len() != 3 {
         //  Unknown command
         api.send(message.text_reply(format!(
             "Unknown command {}. Try /flash 0x0 https://.../firmware.bin",
@@ -58,12 +67,49 @@ async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<(), E
     }
 
     //  Handle flash command
-    let addr = split[1];
-    let firmware = split[2];
+    let addr = split[1];      //  e.g. 0x0
+    let firmware = split[2];  //  e.g. https://.../firmware.bin
     api.send(message.text_reply(format!(
         "Flashing {} to PineTime at address {}...",
         firmware, addr
     )))
     .await ? ;
-    Ok(())
+
+    //  Download the firmware
+    match download_file(firmware).await {
+        Err(_) => {
+            api.send(message.text_reply(format!(
+                "Unable to download {}", firmware
+            )))
+            .await ? ;
+            Ok(())
+        }
+        Ok(tmp_dir) => {
+            let path = tmp_dir.path();
+            println!("path={}", path.to_str().unwrap());
+            //  Flash the firmware and reboot        
+            Ok(())
+        }
+    }
+}
+
+/// Download the URL. Returns the downloaded pathname.
+async fn download_file(url: &str) -> Result<tempfile::TempDir> {
+    println!("url to download: '{}'", url);
+    let tmp_dir = tempfile::Builder::new().prefix("pinetime").tempdir() ? ;
+    let response = reqwest::get(url).await ? ;
+
+    let fname = response
+        .url()
+        .path_segments()
+        .and_then(|segments| segments.last())
+        .and_then(|name| if name.is_empty() { None } else { Some(name) })
+        .unwrap_or("firmware.bin");
+
+    let fname = tmp_dir.path().join(fname);
+    println!("will be located under: '{:?}'", fname);
+    let mut dest = std::fs::File::create(fname.clone()) ? ;
+    let content = response.text().await ? ;
+    std::io::copy(&mut content.as_bytes(), &mut dest) ? ;
+    Ok(tmp_dir)
 }
