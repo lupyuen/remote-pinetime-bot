@@ -11,6 +11,7 @@ use error_chain::error_chain;
 error_chain!{
     foreign_links {
         Io(std::io::Error);
+        //Utf8(std::string::Error);
         Reqwest(reqwest::Error);
         Telegram(telegram_bot::Error);
     }
@@ -87,10 +88,34 @@ async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<()> {
         Ok(tmp_dir) => {
             let path = tmp_dir.path();
             println!("path={}", path.to_str().unwrap());
-            //  Flash the firmware and reboot        
+            //  Flash the firmware and reboot PineTime
+            flash_firmware(addr, path.to_str().unwrap()).await ? ;
             Ok(())
         }
     }
+    //  Upon exit, files in tmp_dir are deleted
+}
+
+/// Flash the downloaded firmware to PineTime at the address
+async fn flash_firmware(addr: &str, path: &str) -> Result<()> {
+    let output = std::process::Command
+        ::new("ls")
+        .arg("-l")
+        .arg(path)
+        .output() ? ;
+
+    if !output.status.success() {
+        error_chain::bail!("Command executed with failing error code");
+    }
+    let output = String::from_utf8(output.stdout).unwrap();
+    println!("Output: {}", output);
+
+    /*
+    String::from_utf8(output.stdout) ?
+        .lines()
+        .for_each(|x| println!("{:?}", x));    
+    */
+    Ok(())
 }
 
 /// Download the URL. Returns the downloaded pathname.
