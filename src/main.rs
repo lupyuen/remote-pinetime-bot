@@ -160,7 +160,9 @@ async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
         error_chain::bail!(error);
     }
     println!("Output: {:?}", output);
-    let output = String::from_utf8(output.stdout).unwrap();
+    let output = 
+        String::from_utf8(output.stdout).unwrap() + "\n" +
+        &String::from_utf8(output.stderr).unwrap();
     println!("Output: {}", output);
     Ok(output)
 }
