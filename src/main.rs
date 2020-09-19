@@ -134,16 +134,16 @@ async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
     let updater_path = env::var("HOME").expect("HOME not set") + "/pinetime-updater";
     //  let updater_path = env::var("HOME").expect("HOME not set") + "/pinetime/pinetime-updater";
     let output = std::process::Command
-        ::new(updater_path.clone() + "/openocd-spi/bin/openocd")  //  Pi
-        //  ::new(updater_path.clone() + "/xpack-openocd/bin/openocd")  //  ST-Link
+        //  ::new(updater_path.clone() + "/openocd-spi/bin/openocd")  //  Pi
+        ::new(updater_path.clone() + "/xpack-openocd/bin/openocd")  //  ST-Link
         .current_dir(updater_path)
         .arg("-c")
         .arg("set filename \"".to_string() + path + "\"")
         .arg("-c")
         .arg("set address \"".to_string() + addr + "\"")
         .arg("-f")
-        .arg("scripts/swd-pi.ocd")  //  Pi
-        //  .arg("scripts/swd-stlink.ocd")  //  ST-Link
+        //  .arg("scripts/swd-pi.ocd")  //  Pi
+        .arg("scripts/swd-stlink.ocd")  //  ST-Link
         .arg("-f")
         .arg("scripts/flash-program.ocd")
         .output() ? ;
