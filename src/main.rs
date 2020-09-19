@@ -93,6 +93,7 @@ async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<()> {
             println!("path={}", path);
             match flash_firmware(addr, &path).await {
                 Err(err) => {  //  Flash failed
+                    println!("Error: {:?}", err);
                     api.send(message.text_reply(format!(
                         "Error: {}", err
                     )))
@@ -112,22 +113,26 @@ async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<()> {
 
 /// Flash the downloaded firmware to PineTime at the address
 async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
-    //  $HOME/pinetime-updater/xpack-openocd/bin/openocd
+    //  cd $HOME/pinetime-updater
+    //  xpack-openocd/bin/openocd
     //  -c ' set filename "/tmp/mynewt_nosemi.elf.bin" ' 
     //  -c ' set address  "0x0" ' 
     //  -f $HOME/pinetime-updater/scripts/swd-stlink.ocd 
     //  -f $HOME/pinetime-updater/scripts/flash-program.ocd
-    let updater_path = env::var("HOME").expect("HOME not set") + "/pinetime-updater";
+    let updater_path = env::var("HOME").expect("HOME not set") + "pinetime-updater";
+    //  let updater_path = env::var("HOME").expect("HOME not set") + "/pinetime/pinetime-updater";
     let output = std::process::Command
         ::new(updater_path.clone() + "/xpack-openocd/bin/openocd")
+        .current_dir(updater_path)
         .arg("-c")
         .arg("set filename \"".to_string() + path + "\"")
         .arg("-c")
         .arg("set address \"".to_string() + addr + "\"")
         .arg("-f")
-        .arg(updater_path.clone() + "/scripts/swd-stlink.ocd")
+        .arg("scripts/swd-pi.ocd")
+        //  .arg("scripts/swd-stlink.ocd")
         .arg("-f")
-        .arg(updater_path.clone() + "/scripts/flash-program.ocd")
+        .arg("scripts/flash-program.ocd")
         .output() ? ;
     /*
     let output = std::process::Command
@@ -135,9 +140,11 @@ async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
         .arg("-l")
         .arg(path)
         .output() ? ;
-    */
+    */    
     if !output.status.success() {
-        error_chain::bail!("Command executed with failing error code");
+        println!("Output: {:?}", output);
+        let error = String::from_utf8(output.stderr).unwrap();
+        error_chain::bail!(error);
     }
     let output = String::from_utf8(output.stdout).unwrap();
     println!("Output: {}", output);
