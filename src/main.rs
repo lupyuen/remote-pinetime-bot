@@ -76,8 +76,11 @@ async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<()> {
     )))
     .await ? ;
 
+    //  Create a temporary directory
+    let tmp_dir = tempfile::Builder::new().prefix("pinetime").tempdir() ? ;
+
     //  Download the firmware
-    match download_file(firmware).await {
+    match download_file(firmware, &tmp_dir).await {
         Err(_) => {
             api.send(message.text_reply(format!(
                 "Unable to download {}", firmware
@@ -85,11 +88,10 @@ async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<()> {
             .await ? ;
             Ok(())
         }
-        Ok(tmp_dir) => {
-            let path = tmp_dir.path();
-            println!("path={}", path.to_str().unwrap());
+        Ok(path) => {
+            println!("path={}", path);
             //  Flash the firmware and reboot PineTime
-            flash_firmware(addr, path.to_str().unwrap()).await ? ;
+            flash_firmware(addr, &path).await ? ;
             Ok(())
         }
     }
@@ -118,10 +120,9 @@ async fn flash_firmware(addr: &str, path: &str) -> Result<()> {
     Ok(())
 }
 
-/// Download the URL. Returns the downloaded pathname.
-async fn download_file(url: &str) -> Result<tempfile::TempDir> {
+/// Download the URL to the temporary directory. Returns the downloaded pathname.
+async fn download_file(url: &str, tmp_dir: &tempfile::TempDir) -> Result<String> {
     println!("url to download: '{}'", url);
-    let tmp_dir = tempfile::Builder::new().prefix("pinetime").tempdir() ? ;
     let response = reqwest::get(url).await ? ;
 
     let fname = response
@@ -136,5 +137,5 @@ async fn download_file(url: &str) -> Result<tempfile::TempDir> {
     let mut dest = std::fs::File::create(fname.clone()) ? ;
     let content = response.text().await ? ;
     std::io::copy(&mut content.as_bytes(), &mut dest) ? ;
-    Ok(tmp_dir)
+    Ok(fname.to_str().unwrap().to_string())
 }
