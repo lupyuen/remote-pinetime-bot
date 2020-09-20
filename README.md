@@ -1,5 +1,6 @@
-# remote-pinetime-bot
-Telegram Bot to flash and test PineTime firmware remotely
+![Telegram Bot to flash and test PineTime firmware remotely](https://lupyuen.github.io/images/remote-pinetime-arch.jpg)
+
+# remote-pinetime-bot: Telegram Bot to flash and test PineTime firmware remotely
 
 This bot watches a Telegram group for flashing commands and flashes the firmware to PineTime. The display on PineTime is streamed live to YouTube, so you can use the bot to test PineTime firmware remotely.
 
