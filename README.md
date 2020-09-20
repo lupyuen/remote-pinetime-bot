@@ -2,7 +2,7 @@
 
 # Telegram Bot to flash and test PineTime firmware remotely
 
-This bot watches a Telegram group for flashing commands and flashes the firmware to [PineTime Smart Watch](https://wiki.pine64.org/index.php/PineTime). The display on PineTime is streamed live to YouTube, so you can use the bot to test PineTime firmware remotely.
+This Rust bot watches a Telegram group for flashing commands and flashes the firmware to [PineTime Smart Watch](https://wiki.pine64.org/index.php/PineTime). The display on PineTime is streamed live to YouTube, so you can use the bot to test PineTime firmware remotely.
 
 To flash and test PineTime remotely, join the "Remote PineTime" Telegram group...
 
