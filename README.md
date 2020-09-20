@@ -56,7 +56,7 @@ How the flashing looks in Telegram...
 
 ## Start Telegram Bot
 
-To run Telegram Bot...
+To run Telegram Bot from this repo...
 
 ```bash
 export TELEGRAM_BOT_TOKEN=???
@@ -69,6 +69,8 @@ do
     sleep 30
 done
 ```
+
+The Telegram Bot calls [PineTime Updater](https://github.com/lupyuen/pinetime-updater/blob/master/README.md) and [xPack OpenOCD](https://xpack.github.io/openocd/install/) to flash firmware to PineTime via SWD.
 
 ## Live Video Stream
 
@@ -83,3 +85,7 @@ raspivid -o - -t 0 -vf -hf -fps 30 -b 6000000 | \
 ```
 
 Based on https://www.makeuseof.com/tag/live-stream-youtube-raspberry-pi/
+
+Here is the live streaming setup with the 8 MP Rapberry Pi Camera Module, Magnifying Glass and Pogo Pins (sharp tip)...
+
+![Raspberry Pi Live Stream](https://lupyuen.github.io/images/remote-pinetime-stream.jpg)
