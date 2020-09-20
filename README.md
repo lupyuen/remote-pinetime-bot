@@ -35,6 +35,8 @@ To flash MCUBoot Bootloader 5.0.4...
 /flash 0x0 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v5.0.4/mynewt.elf.bin
 ```
 
+Sometimes PineTime will get locked up due to firmware errors. Flashing the above MCUBoot Booloader should fix the locking.
+
 To flash older MCUBoot Bootloader 4.1.7...
 
 ```
