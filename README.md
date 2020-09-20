@@ -49,6 +49,10 @@ To flash Rust on RIOT...
 /flash 0x0 https://github.com/lupyuen/pinetime-rust-riot/releases/download/v1.0.3/PineTime.bin
 ```
 
+How the flashing looks in Telegram...
+
+![Flashing Remote PineTime with Telegram](https://lupyuen.github.io/images/remote-pinetime.png)
+
 ## Start Telegram Bot
 
 To run Telegram Bot...
