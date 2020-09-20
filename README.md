@@ -12,6 +12,8 @@ Watch the live stream...
 
 https://youtu.be/1V_eLd3G_AA
 
+![Remote PineTime Live Stream](https://lupyuen.github.io/images/remote-pinetime-youtube.png)
+
 ## Telegram Commands
 
 To flash `https://.../firmware.bin` to PineTime at address `0x0`...
