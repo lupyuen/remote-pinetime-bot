@@ -58,6 +58,10 @@ How the flashing looks in Telegram...
 
 ![Flashing Remote PineTime with Telegram](https://lupyuen.github.io/images/remote-pinetime.png)
 
+Got questions on PineTime? Chat with the PineTime Community on Matrix / Discord / Telegram / IRC...
+
+https://wiki.pine64.org/index.php/PineTime#Community
+
 ## Start Telegram Bot
 
 To run Telegram Bot from this repo...
