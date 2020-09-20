@@ -25,15 +25,17 @@ Don't pass URLs for artifacts created by GitHub Actions. They require login and 
 
 Instead, copy the artifacts and upload them under "Releases", which is not protected by login.
 
+Some flavours of PineTime firmware require a Bootloader, like MCUBoot or SoftDevice. Flash the Bootloader to address `0x0` first, then flash the firmware.
+
 ## Sample Firmware
 
-To flash MCUBoot Bootloader 5.0.4 via Telegram...
+To flash MCUBoot Bootloader 5.0.4...
 
 ```
 /flash 0x0 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v5.0.4/mynewt.elf.bin
 ```
 
-To flash older MCUBoot Bootloader 4.1.7 via Telegram...
+To flash older MCUBoot Bootloader 4.1.7...
 
 ```
 /flash 0x0 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v4.1.7/mynewt_nosemi.elf.bin
