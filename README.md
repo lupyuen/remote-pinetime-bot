@@ -2,7 +2,7 @@
 
 # remote-pinetime-bot: Telegram Bot to flash and test PineTime firmware remotely
 
-This bot watches a Telegram group for flashing commands and flashes the firmware to PineTime. The display on PineTime is streamed live to YouTube, so you can use the bot to test PineTime firmware remotely.
+This bot watches a Telegram group for flashing commands and flashes the firmware to [PineTime Smart Watch](https://wiki.pine64.org/index.php/PineTime). The display on PineTime is streamed live to YouTube, so you can use the bot to test PineTime firmware remotely.
 
 Join the "Remote PineTime" Telegram group...
 
@@ -16,7 +16,7 @@ https://youtu.be/1V_eLd3G_AA
 
 ## Telegram Commands
 
-To flash `https://.../firmware.bin` to PineTime at address `0x0`...
+To flash a firmware binary file `https://.../firmware.bin` to PineTime at address `0x0`...
 
 ```
 /flash 0x0 https://.../firmware.bin
