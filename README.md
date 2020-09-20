@@ -30,6 +30,8 @@ Instead, copy the artifacts and upload them under "Releases", which is not prote
 
 Some flavours of PineTime firmware require a Bootloader, like MCUBoot or SoftDevice. Flash the Bootloader to address `0x0` first, then flash the firmware.
 
+MCUBoot-Compatible Firmware should be flashed to address `0x8000`
+
 ## Sample Firmware
 
 To flash MCUBoot Bootloader 5.0.4...
