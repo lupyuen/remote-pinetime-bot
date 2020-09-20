@@ -1,7 +1,31 @@
 # remote-pinetime-bot
 Telegram Bot to flash and test PineTime firmware remotely
 
+This bot watches a Telegram group for flashing commands and flashes the firmware to PineTime. The display on PineTime is streamed live to YouTube, so you can use the bot to test PineTime firmware remotely.
+
+Join the "Remote PineTime" Telegram group...
+
+https://t.me/remotepinetime
+
+Watch the live stream...
+
+https://youtu.be/1V_eLd3G_AA
+
 ## Telegram Commands
+
+To flash `https://.../firmware.bin` to PineTime at address `0x0`...
+
+```
+/flash 0x0 https://.../firmware.bin
+```
+
+This works for any URL that is not login protected.
+
+Don't pass URLs for artifacts created by GitHub Actions. They require login and the Telegram Bot will be blocked.
+
+Instead, copy the artifacts and upload them under "Releases", which is not protected by login.
+
+## Sample Firmware
 
 To flash MCUBoot Bootloader 5.0.4 via Telegram...
 
@@ -20,10 +44,6 @@ To flash Rust on RIOT...
 ```
 /flash 0x0 https://github.com/lupyuen/pinetime-rust-riot/releases/download/v1.0.3/PineTime.bin
 ```
-
-Don't pass URLs for artifacts created by GitHub Actions. They require login and the Telegram Bot will be blocked.
-
-Instead, copy the artifacts and upload them under "Releases", which is not protected by login.
 
 ## Start Telegram Bot
 
