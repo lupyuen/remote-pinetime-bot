@@ -34,8 +34,10 @@ async fn main() -> Result<()> {
                 println!("-- <{}>: {}", &message.from.first_name, data);
 
                 //  Handle the command
-                handle_command(&api, &message, data)
-                .await ? ;
+                match handle_command(&api, &message, data).await {
+                    Err(err) => println!("Error: {}", err),
+                    Ok(_)    => {}
+                }
             }
         }
     }
