@@ -35,7 +35,9 @@ async fn main() -> Result<()> {
 
                 //  Handle the command
                 match handle_command(&api, &message, data).await {
+                    //  Command failed
                     Err(err) => println!("Error: {}", err),
+                    //  Command succeeded
                     Ok(_)    => {}
                 }
             }
@@ -61,7 +63,7 @@ async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<()> {
     if cmd != "/flash" || split.len() != 3 {
         //  Unknown command
         api.send(message.text_reply(format!(
-            "Unknown command {}. Try /flash 0x0 https://github.com/JF002/Pinetime/releases/download/0.8.1-develop/pinetime-app-0.8.1-develop.bin",
+            "Unknown command {}. Try /flash 0x0 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v5.0.4/mynewt.elf.bin",
             cmd
         )))
         .await ? ;
@@ -118,49 +120,53 @@ async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<()> {
 
 /// Flash the downloaded firmware to PineTime at the address
 async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
-    //  For Pi:
+    //  For Raspberry Pi:
     //  cd $HOME/pinetime-updater
     //  openocd-spi/bin/openocd 
-    //  -c ' set filename "/tmp/mynewt_nosemi.elf.bin" ' 
+    //  -c ' set filename "firmware.bin" ' 
     //  -c ' set address  "0x0" ' 
     //  -f scripts/swd-pi.ocd 
     //  -f scripts/flash-program.ocd
+    #[cfg(target_arch = "armv7")]  //  For Raspberry Pi
+    let updater_path = "/pinetime-updater";
 
-    //  For ST-Link:
-    //  cd $HOME/pinetime-updater
+    //  For Mac with ST-Link:
+    //  cd $HOME/pinetime/pinetime-updater
     //  xpack-openocd/bin/openocd
-    //  -c ' set filename "/tmp/mynewt_nosemi.elf.bin" ' 
+    //  -c ' set filename "firmware.bin" ' 
     //  -c ' set address  "0x0" ' 
-    //  -f $HOME/pinetime-updater/scripts/swd-stlink.ocd 
-    //  -f $HOME/pinetime-updater/scripts/flash-program.ocd
-    //  let updater_path = env::var("HOME").expect("HOME not set") + "/pinetime-updater";  //  Pi
-    let updater_path = env::var("HOME").expect("HOME not set") + "/pinetime/pinetime-updater";  //  Mac
+    //  -f scripts/swd-stlink.ocd 
+    //  -f scripts/flash-program.ocd
+    #[cfg(target_arch = "x86_64")]  //  For Mac with ST-Link
+    let updater_path = "/pinetime/pinetime-updater";
+
+    //  Get the path of PineTime Updater. Remember to run "./run.sh" to download xPack OpenOCD or OpenOCD SPI
+    let updater_path = env::var("HOME").expect("HOME not set") + &updater_path;
+
+    //  Run the command and wait for output
     let output = std::process::Command
-        //  ::new(updater_path.clone() + "/openocd-spi/bin/openocd")  //  Pi
-        ::new(updater_path.clone() + "/xpack-openocd/bin/openocd")  //  ST-Link
+        //  ::new(updater_path.clone() + "/openocd-spi/bin/openocd")  //  Raspberry Pi SPI
+        ::new(updater_path.clone() + "/xpack-openocd/bin/openocd")    //  ST-Link
         .current_dir(updater_path)
         .arg("-c")
         .arg("set filename \"".to_string() + path + "\"")
         .arg("-c")
         .arg("set address \"".to_string() + addr + "\"")
         .arg("-f")
-        //  .arg("scripts/swd-pi.ocd")  //  Pi
+        //  .arg("scripts/swd-pi.ocd")  //  Raspberry Pi SPI
         .arg("scripts/swd-stlink.ocd")  //  ST-Link
         .arg("-f")
         .arg("scripts/flash-program.ocd")
         .output() ? ;
-    /*
-    let output = std::process::Command
-        ::new("ls")
-        .arg("-l")
-        .arg(path)
-        .output() ? ;
-    */    
+
+    //  If command failed, dump stderr
     if !output.status.success() {
         println!("Output: {:?}", output);
         let error = String::from_utf8(output.stderr).unwrap();
         error_chain::bail!(error);
     }
+
+    //  If command succeeded, dump stdout and stderr
     println!("Output: {:?}", output);
     let output = 
         String::from_utf8(output.stdout).unwrap() + "\n" +
@@ -171,9 +177,11 @@ async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
 
 /// Download the URL to the temporary directory. Returns the downloaded pathname.
 async fn download_file(url: &str, tmp_dir: &tempfile::TempDir) -> Result<String> {
+    //  Download the file and wait for the download to be completed
     println!("url to download: '{}'", url);
     let response = reqwest::get(url).await ? ;
 
+    //  Get the last part of the URL as filename, or firmware.bin
     let fname = response
         .url()
         .path_segments()
@@ -181,9 +189,12 @@ async fn download_file(url: &str, tmp_dir: &tempfile::TempDir) -> Result<String>
         .and_then(|name| if name.is_empty() { None } else { Some(name) })
         .unwrap_or("firmware.bin");
 
+    //  Create the temporary pathname
     let fname = tmp_dir.path().join(fname);
     println!("will be located under: '{:?}'", fname);
     let mut dest = File::create(fname.clone()) ? ;
+
+    //  Copy the downloaded data to the temporary pathname
     let content = response.bytes().await ? ;
     std::io::copy(&mut content.as_ref(), &mut dest) ? ;
     Ok(fname.to_str().unwrap().to_string())
