@@ -127,7 +127,7 @@ async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
     //  -c ' set address  "0x0" ' 
     //  -f scripts/swd-pi.ocd 
     //  -f scripts/flash-program.ocd
-    #[cfg(target_arch = "armv7")]  //  For Raspberry Pi
+    #[cfg(target_arch = "arm")]  //  For Raspberry Pi
     let updater_path = "/pinetime-updater";
 
     //  For Mac with ST-Link:
