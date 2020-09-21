@@ -10,7 +10,7 @@ https://t.me/remotepinetime
 
 And watch the live stream on YouTube...
 
-https://youtu.be/1V_eLd3G_AA
+https://youtu.be/G3hjdxgiz0k
 
 ![Remote PineTime Live Stream](https://lupyuen.github.io/images/remote-pinetime-youtube.png)
 
@@ -80,16 +80,22 @@ done
 
 The Telegram Bot calls [PineTime Updater](https://github.com/lupyuen/pinetime-updater/blob/master/README.md) and [xPack OpenOCD](https://xpack.github.io/openocd/install/) to flash firmware to PineTime via SWD.
 
+To download xPack OpenOCD, look at [`pinetime-updater/run.sh`](https://github.com/lupyuen/pinetime-updater/blob/master/run.sh)
+
 ## Live Video Stream
 
 To live stream Raspberry Pi camera to YouTube...
 
 ```bash
-raspivid -o - -t 0 -vf -hf -fps 30 -b 6000000 | \
-    ffmpeg -re -ar 44100 -ac 2 \
-    -acodec pcm_s16le -f s16le -ac 2 \
-    -i /dev/zero -f h264 -i - -vcodec copy -acodec aac -ab 128k -g 50 -strict experimental \
-    -f flv rtmp://a.rtmp.youtube.com/live2/YOUR_YOUTUBE_STREAM_KEY
+for (( ; ; ))
+do
+    raspivid -n -o - -t 0 -vf -hf -fps 30 -b 6000000 | \
+        ffmpeg -re -ar 44100 -ac 2 \
+        -acodec pcm_s16le -f s16le -ac 2 \
+        -i /dev/zero -f h264 -i - -vcodec copy -acodec aac -ab 128k -g 50 -strict experimental \
+        -f flv rtmp://a.rtmp.youtube.com/live2/YOUR_YOUTUBE_STREAM_KEY
+    sleep 1
+done
 ```
 
 Based on https://www.makeuseof.com/tag/live-stream-youtube-raspberry-pi/
