@@ -12,6 +12,8 @@ And watch the live stream on YouTube...
 
 https://youtu.be/G3hjdxgiz0k
 
+The live stream URL will change whenever I reboot my Raspberry Pi. Please check this page for the updated live stream URL.
+
 ![Remote PineTime Live Stream](https://lupyuen.github.io/images/remote-pinetime-youtube.png)
 
 ## Telegram Commands
