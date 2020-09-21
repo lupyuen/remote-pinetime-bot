@@ -97,3 +97,11 @@ Based on https://www.makeuseof.com/tag/live-stream-youtube-raspberry-pi/
 Here is the live streaming setup with the 8 MP Rapberry Pi Camera Module, Magnifying Glass and Pogo Pins (sharp tip)...
 
 ![Raspberry Pi Live Stream](https://lupyuen.github.io/images/remote-pinetime-stream.jpg)
+
+## TODO
+
+1. Write Semihosting Debug Log to a separate Telegram Channel
+
+1. Throttle the number of Semihosting messages that will be logged to the Telegram Channel
+
+1. Allow Semihosting Debug Log and Firmware Flashing to coexist (they both use OpenOCD)
