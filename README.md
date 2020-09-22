@@ -48,16 +48,22 @@ To flash MCUBoot Bootloader 5.0.4...
 
 Sometimes PineTime will get locked up due to firmware errors. Flashing the above MCUBoot Booloader should fix the locking.
 
-To flash older MCUBoot Bootloader 4.1.7...
+To flash a modified "MIND BLOWN" InfiniTime firmware that never sleeps: flash the above MCUBoot Bootloader, then flash this...
 
 ```
-/flash 0x0 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v4.1.7/mynewt_nosemi.elf.bin
+/flash 0x8000 https://github.com/AntonMadness/Pinetime/releases/download/v0.1.1/pinetime-mcuboot-app-img.bin
 ```
 
 To flash Rust on RIOT...
 
 ```
 /flash 0x0 https://github.com/lupyuen/pinetime-rust-riot/releases/download/v1.0.3/PineTime.bin
+```
+
+To flash older MCUBoot Bootloader 4.1.7...
+
+```
+/flash 0x0 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v4.1.7/mynewt_nosemi.elf.bin
 ```
 
 To build your own firmware in the cloud, without installing any IDE or toolchain, check out the articles...
