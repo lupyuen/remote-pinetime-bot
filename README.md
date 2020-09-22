@@ -56,6 +56,12 @@ To flash Rust on RIOT...
 /flash 0x0 https://github.com/lupyuen/pinetime-rust-riot/releases/download/v1.0.3/PineTime.bin
 ```
 
+To build your own firmware in the cloud, without installing any IDE or toolchain, check out the articles...
+
+1. [Build PineTime Firmware in the Cloud with GitHub Actions](https://lupyuen.github.io/pinetime-rust-mynewt/articles/cloud)
+
+1. [Preview PineTime Watch Faces in your Web Browser with WebAssembly](https://lupyuen.github.io/pinetime-rust-mynewt/articles/simulator)
+
 How the flashing looks in Telegram...
 
 ![Flashing Remote PineTime with Telegram](https://lupyuen.github.io/images/remote-pinetime.png)
