@@ -92,9 +92,17 @@ done
 
 The Telegram Bot calls [PineTime Updater](https://github.com/lupyuen/pinetime-updater/blob/master/README.md) and [xPack OpenOCD](https://xpack.github.io/openocd/install/) to flash firmware to PineTime via SWD.
 
-To download xPack OpenOCD, look at [`pinetime-updater/run.sh`](https://github.com/lupyuen/pinetime-updater/blob/master/run.sh)
+To download xPack OpenOCD (for Mac) or OpenOCD SPI (for Raspberry Pi), look at [`pinetime-updater/run.sh`](https://github.com/lupyuen/pinetime-updater/blob/master/run.sh)
 
-The Telegram Bot is currently running on Raspberry Pi with xPack OpenOCD (instead of OpenOCD SPI).
+The Telegram Bot is currently running on Raspberry Pi with xPack OpenOCD (instead of OpenOCD SPI). xPack OpenOCD for 32-bit Raspbian was [downloaded from here](https://github.com/xpack-dev-tools/openocd-xpack/releases/download/v0.10.0-14/xpack-openocd-0.10.0-14-linux-arm.tar.gz)
+
+The USB driver for ST-Link was configured on Raspbian like so...
+
+```bash
+#  For Linux Only: Install UDEV Rules according to https://xpack.github.io/openocd/install/#udev
+sudo cp xpack-openocd/contrib/60-openocd.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules
+```
 
 ## Live Video Stream
 
@@ -114,7 +122,7 @@ done
 
 Based on https://www.makeuseof.com/tag/live-stream-youtube-raspberry-pi/
 
-Here is the live streaming setup with the 8 MP Rapberry Pi v2 Camera Module, Magnifying Glass and Pogo Pins (sharp tip)...
+Here is the live streaming setup with the 8 MP Rapberry Pi v2 Camera Module, Two Magnifying Glasses, ST-Link v2 and Pogo Pins (sharp tip)...
 
 ![Raspberry Pi Live Stream](https://lupyuen.github.io/images/remote-pinetime-stream.jpg)
 
