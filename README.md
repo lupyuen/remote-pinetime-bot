@@ -130,7 +130,7 @@ done
 
 Based on https://www.makeuseof.com/tag/live-stream-youtube-raspberry-pi/
 
-Here is the live streaming setup with the 8 MP Rapberry Pi v2 Camera Module, Two Magnifying Glasses, ST-Link v2 and Pogo Pins (sharp tip)...
+Here is the live streaming setup with (left to right) Raspberry Pi 4, Raspberry Pi v2 Camera Module (8 MP), Two Magnifying Glasses, PineTime with Pogo Pins (sharp tip) and ST-Link v2...
 
 ![Raspberry Pi Live Stream](https://lupyuen.github.io/images/remote-pinetime-stream.jpg)
 
