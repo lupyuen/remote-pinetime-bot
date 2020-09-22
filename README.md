@@ -68,7 +68,7 @@ To flash older MCUBoot Bootloader 4.1.7...
 /flash 0x0 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v4.1.7/mynewt_nosemi.elf.bin
 ```
 
-To build your own firmware in the cloud, without installing any IDE or toolchain, check out the articles...
+To build your own firmware in a web browser (without installing any IDE or toolchain) check out the articles...
 
 1. [Build PineTime Firmware in the Cloud with GitHub Actions](https://lupyuen.github.io/pinetime-rust-mynewt/articles/cloud)
 
@@ -84,7 +84,7 @@ https://wiki.pine64.org/index.php/PineTime#Community
 
 ## Start Telegram Bot
 
-To run Telegram Bot from this repo...
+To run your own Telegram Bot: Clone this repo and run...
 
 ```bash
 export TELEGRAM_BOT_TOKEN=???
@@ -114,7 +114,7 @@ sudo udevadm control --reload-rules
 
 ## Live Video Stream
 
-To live stream Raspberry Pi camera to YouTube...
+To live stream your Raspberry Pi camera to YouTube...
 
 ```bash
 for (( ; ; ))
