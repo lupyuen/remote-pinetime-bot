@@ -8,11 +8,11 @@ The Remote PineTime Bot (created in Rust) watches a Telegram group for flashing 
 
 The display on PineTime is streamed live to YouTube, so you can watch your firmware running live on my PineTime.
 
-To flash and test the PineTime in my bedroom, join the "Remote PineTime" Telegram group...
+To flash your own firmware and test the PineTime in my bedroom, join the "Remote PineTime" Telegram group...
 
 https://t.me/remotepinetime
 
-And watch the live stream on YouTube...
+And watch the "Remote PineTime" live stream on YouTube...
 
 https://youtu.be/G3hjdxgiz0k
 
