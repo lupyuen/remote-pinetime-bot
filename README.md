@@ -54,6 +54,8 @@ To flash a modified "MIND BLOWN" InfiniTime firmware that never sleeps: flash th
 /flash 0x8000 https://github.com/AntonMadness/Pinetime/releases/download/v0.1.1/pinetime-mcuboot-app-img.bin
 ```
 
+This was modified by editing [`src/DisplayApp/DisplayApp.cpp`](https://github.com/AntonMadness/Pinetime/blob/master/src/DisplayApp/DisplayApp.cpp) to remove all calls to `case Messages::GoToSleep:`
+
 To flash Rust on RIOT...
 
 ```
