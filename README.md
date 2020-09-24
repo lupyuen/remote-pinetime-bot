@@ -84,6 +84,14 @@ https://wiki.pine64.org/index.php/PineTime#Community
 
 ## Start Telegram Bot
 
+To create your own Telegram Bot...
+
+1. Chat with BotFather, create a bot named `PineTime Bot`
+
+1. Enter `/mybots`, select `PineTime Bot`
+
+1. Select `Edit Commands`, enter `flash - flash 0x0 https://.../firmware.bin`
+
 To run your own Telegram Bot: Clone this repo and run...
 
 ```bash
