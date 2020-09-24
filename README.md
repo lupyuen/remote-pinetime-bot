@@ -40,7 +40,7 @@ MCUBoot-Compatible Firmware should be flashed to address `0x8000`
 
 ## Sample Firmware
 
-To flash MCUBoot Bootloader 5.0.4...
+To flash [MCUBoot Bootloader](https://lupyuen.github.io/pinetime-rust-mynewt/articles/mcuboot) 5.0.4...
 
 ```
 /flash 0x0 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v5.0.4/mynewt.elf.bin
@@ -48,7 +48,7 @@ To flash MCUBoot Bootloader 5.0.4...
 
 Sometimes PineTime will get locked up due to firmware errors. Flashing the above MCUBoot Booloader should fix the locking.
 
-To flash a modified "MIND BLOWN" InfiniTime firmware that never sleeps: flash the above MCUBoot Bootloader, then flash this...
+To flash a modified "MIND BLOWN" [InfiniTime Firmware](https://github.com/JF002/Pinetime) that never sleeps: flash the above MCUBoot Bootloader, then flash this...
 
 ```
 /flash 0x8000 https://github.com/AntonMadness/Pinetime/releases/download/v0.1.1/pinetime-mcuboot-app-img.bin
@@ -56,7 +56,7 @@ To flash a modified "MIND BLOWN" InfiniTime firmware that never sleeps: flash th
 
 This was modified by editing [`src/DisplayApp/DisplayApp.cpp`](https://github.com/AntonMadness/Pinetime/blob/master/src/DisplayApp/DisplayApp.cpp) to remove all calls to `case Messages::GoToSleep:`
 
-To flash Rust on RIOT...
+To flash [Rust on RIOT](https://github.com/lupyuen/pinetime-rust-riot)...
 
 ```
 /flash 0x0 https://github.com/lupyuen/pinetime-rust-riot/releases/download/v1.0.3/PineTime.bin
