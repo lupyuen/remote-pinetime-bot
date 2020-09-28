@@ -3,6 +3,8 @@
 //  Enter "/mybots", select "PineTime Bot"
 //  Select "Edit Commands", enter "flash - flash 0x0 https://.../firmware.bin"
 use std::{env, fs::File, string::String};
+use std::process::{Command, Stdio};
+use std::io::{BufRead, BufReader, ErrorKind};
 use futures::StreamExt;
 use telegram_bot::*;
 use error_chain::error_chain;
@@ -175,16 +177,13 @@ async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
     Ok(output)
 }
 
-use std::process::{Command, Stdio};
-use std::io::{BufRead, BufReader, Error, ErrorKind};
-
 /// Transmit the Semihosting Log to Telegram    
 async fn transmit_log() -> Result<()> {
     let stdout = Command::new("journalctl")
         .stdout(Stdio::piped())
         .spawn() ?
         .stdout
-        .ok_or_else(|| Error::new(ErrorKind::Other,"Could not capture standard output."))?;
+        .ok_or_else(|| std::io::Error::new(ErrorKind::Other,"Could not capture standard output."))?;
 
     let reader = BufReader::new(stdout);
 
