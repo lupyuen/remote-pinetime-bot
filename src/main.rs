@@ -123,20 +123,20 @@ async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
     //  For Raspberry Pi:
     //  cd $HOME/pinetime-updater
     //  openocd-spi/bin/openocd 
-    //  -c ' set filename "firmware.bin" ' 
-    //  -c ' set address  "0x0" ' 
-    //  -f scripts/swd-pi.ocd 
-    //  -f scripts/flash-program.ocd
+    //    -c ' set filename "firmware.bin" ' 
+    //    -c ' set address  "0x0" ' 
+    //    -f scripts/swd-pi.ocd 
+    //    -f scripts/flash-program.ocd
     #[cfg(target_arch = "arm")]  //  For Raspberry Pi
     let updater_path = "/pinetime-updater";
 
     //  For Mac with ST-Link:
     //  cd $HOME/pinetime/pinetime-updater
     //  xpack-openocd/bin/openocd
-    //  -c ' set filename "firmware.bin" ' 
-    //  -c ' set address  "0x0" ' 
-    //  -f scripts/swd-stlink.ocd 
-    //  -f scripts/flash-program.ocd
+    //    -c ' set filename "firmware.bin" ' 
+    //    -c ' set address  "0x0" ' 
+    //    -f scripts/swd-stlink.ocd 
+    //    -f scripts/flash-program.ocd
     #[cfg(target_arch = "x86_64")]  //  For Mac with ST-Link
     let updater_path = "/pinetime/pinetime-updater";
 
@@ -175,7 +175,7 @@ async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
     Ok(output)
 }
 
-/// Transmit the 
+/// Transmit the Semihosting Log to Telegram
 async fn transmit_log() {
     let mut cmd = Command::new("cat");
 
