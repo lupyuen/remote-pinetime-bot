@@ -86,7 +86,7 @@ To create your own Telegram Bot...
 
 1. Select `Edit Commands`, enter `flash - flash 0x0 https://.../firmware.bin`
 
-To run your own Telegram Bot: Clone this repo and run...
+To run your own Telegram Bot: Clone this repo and run this in a shell script...
 
 ```bash
 export TELEGRAM_BOT_TOKEN=???
@@ -96,6 +96,7 @@ do
     git pull
     cargo run
     echo "---------ERROR--------"
+    pkill openocd
     sleep 30
 done
 ```
@@ -116,7 +117,7 @@ sudo udevadm control --reload-rules
 
 ## Live Video Stream
 
-To live stream your Raspberry Pi camera to YouTube...
+To live stream your Raspberry Pi camera to YouTube: Run this in a shell script...
 
 ```bash
 for (( ; ; ))

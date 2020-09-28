@@ -175,6 +175,39 @@ async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
     Ok(output)
 }
 
+/// Transmit the 
+async fn transmit_log() {
+    let mut cmd = Command::new("cat");
+
+    // Specify that we want the command's standard output piped back to us.
+    // By default, standard input/output/error will be inherited from the
+    // current process (for example, this means that standard input will
+    // come from the keyboard and standard output/error will go directly to
+    // the terminal if this process is invoked from the command line).
+    cmd.stdout(Stdio::piped());
+
+    let mut child = cmd.spawn()
+        .expect("failed to spawn command");
+
+    let stdout = child.stdout.take()
+        .expect("child did not have a handle to stdout");
+
+    let mut reader = BufReader::new(stdout).lines();
+
+    // Ensure the child process is spawned in the runtime so it can
+    // make progress on its own while we await for any output.
+    tokio::spawn(async {
+        let status = child.await
+            .expect("child process encountered an error");
+
+        println!("child status was: {}", status);
+    });
+
+    while let Some(line) = reader.next_line().await? {
+        println!("Line: {}", line);
+    }
+}
+
 /// Download the URL to the temporary directory. Returns the downloaded pathname.
 async fn download_file(url: &str, tmp_dir: &tempfile::TempDir) -> Result<String> {
     //  Download the file and wait for the download to be completed
