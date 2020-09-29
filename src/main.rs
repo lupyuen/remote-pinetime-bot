@@ -4,14 +4,14 @@
 //  Select "Edit Commands", enter "flash - flash 0x0 https://.../firmware.bin"
 use std::{env, fs::File, string::String};
 use std::process::Stdio;
-//use std::io::{BufRead, BufReader};
 use tokio::io::{BufReader, AsyncBufReadExt};
 use tokio::process::Command;
-use futures::StreamExt;
 use futures::{
     future::FutureExt, // for `.fuse()`
     pin_mut,
     select,
+    try_join,
+    StreamExt,
 };
 use telegram_bot::*;
 use error_chain::error_chain;
@@ -28,16 +28,26 @@ error_chain!{
 /// Listen for commands and handle them
 #[tokio::main]
 async fn main() -> Result<()> {
+    let t1 = transmit_log("test1.sh");
+    let t2 = transmit_log("test2.sh");
+    println!("Transmit OK");
+
+    //  Wait for both tasks to complete
+    let res = try_join!(t1, t2) ? ;
+    println!("Join OK: {:?}", res);
+
+    /*
     let t1 = transmit_log("test1.sh").fuse();
     let t2 = transmit_log("test2.sh").fuse();
     println!("Transmit OK");
 
+    //  Wait for either task to complete
     pin_mut!(t1, t2);
-
     select! {
         _ = t1 => println!("task one completed first"),
         _ = t2 => println!("task two completed first"),
     }
+    */
   
     let token = env::var("TELEGRAM_BOT_TOKEN").expect("TELEGRAM_BOT_TOKEN not set");
     let api = Api::new(token);
