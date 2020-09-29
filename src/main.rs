@@ -21,6 +21,11 @@ error_chain!{
 /// Listen for commands and handle them
 #[tokio::main]
 async fn main() -> Result<()> {
+    transmit_log().await ? ;
+    println!("Transmit OK");
+    loop {}
+  
+    /*
     let token = env::var("TELEGRAM_BOT_TOKEN").expect("TELEGRAM_BOT_TOKEN not set");
     let api = Api::new(token);
 
@@ -45,6 +50,8 @@ async fn main() -> Result<()> {
             }
         }
     }
+    */
+
     Ok(())
 }
 
@@ -182,7 +189,9 @@ async fn transmit_log() -> Result<()> {
     //  TODO: Stop the current OpenOCD process by sending "exit" to the TCP socket
     
     //  TODO: Spawn the OpenOCD process
-    let stdout = Command::new("TODO")
+    let stdout = Command
+        ::new("bash")
+        .arg("test.sh")
         .stdout(Stdio::piped())
         .spawn() ?
         .stdout
@@ -195,7 +204,7 @@ async fn transmit_log() -> Result<()> {
     reader
         .lines()
         .filter_map(|line| line.ok())
-        .filter(|line| line.find("TODO").is_some())
+        //.filter(|line| line.find("TODO").is_some())
         .for_each(|line| println!("{}", line));
 
     //  TODO: Transmit each line of OpenOCD output to the Telegram Channel
