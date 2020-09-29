@@ -28,16 +28,8 @@ error_chain!{
 /// Listen for commands and handle them
 #[tokio::main]
 async fn main() -> Result<()> {
-    let mut cmd1 = Command
-        ::new("bash");
-    let mut cmd2 = cmd1
-        .arg("test1.sh");
-    let mut cmd3 = Command
-        ::new("bash");
-    let mut cmd4 = cmd3
-        .arg("test2.sh");
-    let t1 = transmit_log2(&mut cmd2).fuse();
-    let t2 = transmit_log2(&mut cmd4).fuse();
+    let t1 = transmit_log("test1.sh").fuse();
+    let t2 = transmit_log("test2.sh").fuse();
     println!("Transmit OK");
 
     pin_mut!(t1, t2);
@@ -47,7 +39,6 @@ async fn main() -> Result<()> {
         _ = t2 => println!("task two completed first"),
     }
   
-    /*
     let token = env::var("TELEGRAM_BOT_TOKEN").expect("TELEGRAM_BOT_TOKEN not set");
     let api = Api::new(token);
 
@@ -72,7 +63,6 @@ async fn main() -> Result<()> {
             }
         }
     }
-    */
 
     Ok(())
 }
@@ -206,39 +196,14 @@ async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
     Ok(output)
 }
 
-/// Transmit the Semihosting Log from OpenOCD to Telegram Channel. Based on https://rust-lang-nursery.github.io/rust-cookbook/os/external.html#continuously-process-child-process-outputs
-async fn transmit_log(cmd: &str) -> Result<()> {
+/// Transmit the Semihosting Log from OpenOCD to Telegram Channel. Based on https://docs.rs/tokio/0.2.22/tokio/process/index.html
+async fn transmit_log(script: &str) -> Result<()> {
     //  TODO: Stop the current OpenOCD process by sending "exit" to the TCP socket
     
     //  TODO: Spawn the OpenOCD process
-    let stdout = Command
-        ::new("bash")
-        .arg(cmd)
-        .stdout(Stdio::piped())
-        .spawn() ?
-        .stdout
-        .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::Other,"Could not capture standard output."))?;
+    let mut cmd = Command::new("bash");
+    let cmd = cmd.arg(script);
 
-    //  TODO: In case of error, return the error log
-
-    //  TODO: In the background, read the OpenOCD output line by line
-    /*
-    let reader = BufReader::new(stdout);
-    reader
-        .lines()
-        .filter_map(|line| line.ok())
-        //.filter(|line| line.find("TODO").is_some())
-        .for_each(|line| println!("{}", line));
-    */
-
-    //  TODO: Transmit each line of OpenOCD output to the Telegram Channel
-
-    //  TODO: Wait for "*** Done" and return the message, while continuing OpenOCD output processing in the background
-    //  See https://rust-lang-nursery.github.io/rust-cookbook/concurrency/threads.html#maintain-global-mutable-state
-    Ok(())
-}
-
-async fn transmit_log2(cmd: &mut Command) -> Result<()> {
     // Specify that we want the command's standard output piped back to us.
     // By default, standard input/output/error will be inherited from the
     // current process (for example, this means that standard input will
@@ -252,6 +217,9 @@ async fn transmit_log2(cmd: &mut Command) -> Result<()> {
     let stdout = child.stdout.take()
         .expect("child did not have a handle to stdout");
 
+    //  TODO: In case of error, return the error log
+
+    //  TODO: In the background, read the OpenOCD output line by line
     let mut reader = BufReader::new(stdout).lines();
 
     // Ensure the child process is spawned in the runtime so it can
@@ -263,10 +231,13 @@ async fn transmit_log2(cmd: &mut Command) -> Result<()> {
         println!("child status was: {}", status);
     });
 
+    //  TODO: Transmit each line of OpenOCD output to the Telegram Channel
     while let Some(line) = reader.next_line().await? {
         println!("Line: {}", line);
     }
 
+    //  TODO: Wait for "*** Done" and return the message, while continuing OpenOCD output processing in the background
+    //  See https://rust-lang-nursery.github.io/rust-cookbook/concurrency/threads.html#maintain-global-mutable-state
     Ok(())
 }
 
