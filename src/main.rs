@@ -179,6 +179,8 @@ async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
 
 /// Transmit the Semihosting Log from OpenOCD to Telegram Channel. Based on https://rust-lang-nursery.github.io/rust-cookbook/os/external.html#continuously-process-child-process-outputs
 async fn transmit_log() -> Result<()> {
+    //  TODO: Stop the current OpenOCD process by sending "exit" to the TCP socket
+    
     //  TODO: Spawn the OpenOCD process
     let stdout = Command::new("TODO")
         .stdout(Stdio::piped())
@@ -196,9 +198,9 @@ async fn transmit_log() -> Result<()> {
         .filter(|line| line.find("TODO").is_some())
         .for_each(|line| println!("{}", line));
 
-    //  TODO: Transmit each line of output to the Telegram Channel
+    //  TODO: Transmit each line of OpenOCD output to the Telegram Channel
 
-    //  TODO: Wait for "*** Done" and return the message
+    //  TODO: Wait for "*** Done" and return the message, while continuing OpenOCD output processing in the background
     //  See https://rust-lang-nursery.github.io/rust-cookbook/concurrency/threads.html#maintain-global-mutable-state
     Ok(())
 }
