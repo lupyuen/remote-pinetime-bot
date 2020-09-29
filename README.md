@@ -89,7 +89,10 @@ To create your own Telegram Bot...
 To run your own Telegram Bot: Clone this repo and run this in a shell script...
 
 ```bash
+#  Set your Telegram Bot Token
 export TELEGRAM_BOT_TOKEN=???
+#  This is needed to fix the h2 / indexmap build error "ids: IndexMap<StreamId, SlabIndex> expected 3 type arguments"
+export CARGO_FEATURE_STD=1
 cd ~/remote-pinetime-bot
 for (( ; ; ))
 do

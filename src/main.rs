@@ -195,7 +195,7 @@ async fn transmit_log() -> Result<()> {
         .filter_map(|line| line.ok())
         .filter(|line| line.find("TODO").is_some())
         .for_each(|line| println!("{}", line));
-        
+
     //  TODO: Transmit each line of output to the Telegram Channel
 
     //  TODO: Wait for "*** Done" and return the message
