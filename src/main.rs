@@ -28,8 +28,16 @@ error_chain!{
 /// Listen for commands and handle them
 #[tokio::main]
 async fn main() -> Result<()> {
-    let t1 = transmit_log("test1.sh").fuse();
-    let t2 = transmit_log("test2.sh").fuse();
+    let mut cmd1 = Command
+        ::new("bash");
+    let mut cmd2 = cmd1
+        .arg("test1.sh");
+    let mut cmd3 = Command
+        ::new("bash");
+    let mut cmd4 = cmd3
+        .arg("test2.sh");
+    let t1 = transmit_log2(&mut cmd2).fuse();
+    let t2 = transmit_log2(&mut cmd4).fuse();
     println!("Transmit OK");
 
     pin_mut!(t1, t2);
@@ -230,11 +238,7 @@ async fn transmit_log(cmd: &str) -> Result<()> {
     Ok(())
 }
 
-async fn transmit_log2(cmd: &str) -> Result<()> {
-    let mut cmd = Command
-        ::new("bash")
-        .arg(cmd);
-
+async fn transmit_log2(cmd: &mut Command) -> Result<()> {
     // Specify that we want the command's standard output piped back to us.
     // By default, standard input/output/error will be inherited from the
     // current process (for example, this means that standard input will
