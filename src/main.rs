@@ -7,11 +7,11 @@ use std::process::Stdio;
 use tokio::io::{BufReader, AsyncBufReadExt};
 use tokio::process::Command;
 use futures::{
-    future::FutureExt, // for `.fuse()`
+    future::{Fuse, FusedFuture, FutureExt},
+    stream::{FusedStream, Stream, StreamExt},   
     pin_mut,
     select,
     try_join,
-    StreamExt,
 };
 use telegram_bot::*;
 use error_chain::error_chain;
@@ -28,6 +28,7 @@ error_chain!{
 /// Listen for commands and handle them
 #[tokio::main]
 async fn main() -> Result<()> {
+    /*
     let t1 = transmit_log("test1.sh");
     let t2 = transmit_log("test2.sh");
     println!("Transmit OK");
@@ -35,8 +36,8 @@ async fn main() -> Result<()> {
     //  Wait for both tasks to complete
     let res = try_join!(t1, t2) ? ;
     println!("Join OK: {:?}", res);
+    */
 
-    /*
     let t1 = transmit_log("test1.sh").fuse();
     let t2 = transmit_log("test2.sh").fuse();
     println!("Transmit OK");
@@ -47,7 +48,7 @@ async fn main() -> Result<()> {
         _ = t1 => println!("task one completed first"),
         _ = t2 => println!("task two completed first"),
     }
-    */
+    println!("Select OK");
   
     let token = env::var("TELEGRAM_BOT_TOKEN").expect("TELEGRAM_BOT_TOKEN not set");
     let api = Api::new(token);
@@ -75,6 +76,37 @@ async fn main() -> Result<()> {
     }
 
     Ok(())
+}
+
+/// From https://rust-lang.github.io/async-book/06_multiple_futures/03_select.html#concurrent-tasks-in-a-select-loop-with-fuse-and-futuresunordered
+async fn run_loop(
+    mut interval_timer: impl Stream<Item = ()> + FusedStream + Unpin,
+    starting_num: u8,
+) {
+    let run_on_new_num_fut = run_on_new_num(starting_num).fuse();
+    let get_new_num_fut = Fuse::terminated();
+    pin_mut!(run_on_new_num_fut, get_new_num_fut);
+    loop {
+        select! {
+            () = interval_timer.select_next_some() => {
+                // The timer has elapsed. Start a new `get_new_num_fut`
+                // if one was not already running.
+                if get_new_num_fut.is_terminated() {
+                    get_new_num_fut.set(get_new_num().fuse());
+                }
+            },
+            new_num = get_new_num_fut => {
+                // A new number has arrived-- start a new `run_on_new_num_fut`,
+                // dropping the old one.
+                run_on_new_num_fut.set(run_on_new_num(new_num).fuse());
+            },
+            // Run the `run_on_new_num_fut`
+            () = run_on_new_num_fut => {},
+            // panic if everything completed, since the `interval_timer` should
+            // keep yielding values indefinitely.
+            complete => panic!("`interval_timer` completed unexpectedly"),
+        }
+    }
 }
 
 /// Handle a command e.g. "flash - flash 0x0 https://.../firmware.bin"
