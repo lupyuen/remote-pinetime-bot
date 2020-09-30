@@ -79,32 +79,30 @@ async fn main() -> Result<()> {
 }
 
 /// From https://rust-lang.github.io/async-book/06_multiple_futures/03_select.html#concurrent-tasks-in-a-select-loop-with-fuse-and-futuresunordered
-async fn run_loop(
-    mut interval_timer: impl Stream<Item = ()> + FusedStream + Unpin,
-    starting_num: u8,
-) {
-    let run_on_new_num_fut = run_on_new_num(starting_num).fuse();
-    let get_new_num_fut = Fuse::terminated();
-    pin_mut!(run_on_new_num_fut, get_new_num_fut);
+async fn run_loop() {
+    //  OpenOCD is not running initially
+    let openocd_task = Fuse::terminated();
+
+    //  Init the Telegram API
+    let token = env::var("TELEGRAM_BOT_TOKEN").expect("TELEGRAM_BOT_TOKEN not set");
+    let api = Api::new(token);
+
+    //  Fetch new Telegram updates via long poll method
+    let mut stream = api.stream();
+    let telegram_task = stream.next().fuse();
+
+    //  Loop forever processing Telegram and OpenOCD events
+    pin_mut!(telegram_task, openocd_task);
     loop {
+        //  Wait for Telegram Task or OpenOCD Task to complete
         select! {
-            () = interval_timer.select_next_some() => {
-                // The timer has elapsed. Start a new `get_new_num_fut`
-                // if one was not already running.
-                if get_new_num_fut.is_terminated() {
-                    get_new_num_fut.set(get_new_num().fuse());
-                }
+            _ = telegram_task => {
+                //  Start a new OpenOCD Task, dropping the old one
+                openocd_task.set(transmit_log("test1.sh").fuse());
             },
-            new_num = get_new_num_fut => {
-                // A new number has arrived-- start a new `run_on_new_num_fut`,
-                // dropping the old one.
-                run_on_new_num_fut.set(run_on_new_num(new_num).fuse());
+            _ = openocd_task => {
+                println!("OpenOCD task completed");
             },
-            // Run the `run_on_new_num_fut`
-            () = run_on_new_num_fut => {},
-            // panic if everything completed, since the `interval_timer` should
-            // keep yielding values indefinitely.
-            complete => panic!("`interval_timer` completed unexpectedly"),
         }
     }
 }
