@@ -98,11 +98,11 @@ async fn main() -> Result<()> {
     //  Loop forever processing Telegram and OpenOCD events
     pin_mut!(openocd_task);
     loop {
-        //  Wait for Telegram Update or OpenOCD Task to complete
+        //  Wait for Telegram Update to be received or OpenOCD Task to complete
         println!("Before Select: OpenOCD Task Terminated is {:?}", openocd_task.is_terminated());
         select! {
+            //  If Telegram Update received...
             telegram_update = telegram_stream.next().fuse() => {
-                //  Telegram update received
                 println!("Telegram update received: {:?}", telegram_update);
 
                 //  If valid flash command received...
@@ -112,11 +112,13 @@ async fn main() -> Result<()> {
 
                 //  Wait for OpenOCD task to quit
             },
+
+            //  If OpenOCD Task completed...
             openocd_result = openocd_task => {
-                //  OpenOCD Task completed
                 println!("OpenOCD task completed: {:?}", openocd_result);
             },
-            //  Panic if everything completed, since Telegram Task should always be running
+
+            //  If everything completed, panic since Telegram Task should always be running
             complete => panic!("Telegram task completed unexpectedly"),
         }
 
