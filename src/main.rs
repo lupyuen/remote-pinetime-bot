@@ -27,7 +27,7 @@ error_chain!{
 
 /// Listen for commands and handle them
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main2() -> Result<()> {
     /*
     let t1 = transmit_log("test1.sh");
     let t2 = transmit_log("test2.sh");
@@ -78,8 +78,10 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-/// From https://rust-lang.github.io/async-book/06_multiple_futures/03_select.html#concurrent-tasks-in-a-select-loop-with-fuse-and-futuresunordered
-async fn run_loop() {
+/// Listen for commands and handle them
+#[tokio::main]
+async fn main() -> Result<()> {
+    //  Event loop based on https://rust-lang.github.io/async-book/06_multiple_futures/03_select.html#concurrent-tasks-in-a-select-loop-with-fuse-and-futuresunordered
     //  OpenOCD is not running initially
     let openocd_task = Fuse::terminated();
 
@@ -88,17 +90,16 @@ async fn run_loop() {
     let api = Api::new(token);
 
     //  Fetch new Telegram updates via long poll method
-    let mut stream = api.stream();
-    let telegram_task = stream.next().fuse();
+    let mut telegram_stream = api.stream();
 
     //  Loop forever processing Telegram and OpenOCD events
-    pin_mut!(telegram_task, openocd_task);
+    pin_mut!(openocd_task);
     loop {
-        //  Wait for Telegram Task or OpenOCD Task to complete
+        //  Wait for Telegram Update or OpenOCD Task to complete
         select! {
-            _ = telegram_task => {
-                //  Telegram Task completed
-                println!("Telegram task completed");
+            _ = telegram_stream.next() => {
+                //  Telegram update received
+                println!("Telegram update received");
 
                 //  If valid flash command received...
 
@@ -112,8 +113,6 @@ async fn run_loop() {
 
                 //  Start a new OpenOCD Task, dropping the old one
                 openocd_task.set(transmit_log("test1.sh").fuse());
-
-                //  Start a new Telegram Task, dropping the old one
             },
             //  Panic if everything completed, since Telegram Task should always be running
             complete => panic!("Telegram task completed unexpectedly"),
