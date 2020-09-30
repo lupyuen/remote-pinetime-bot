@@ -100,12 +100,18 @@ async fn run_loop() {
                 //  Telegram Task completed
                 println!("Telegram task completed");
 
-                //  Start a new OpenOCD Task, dropping the old one
-                openocd_task.set(transmit_log("test1.sh").fuse());
+                //  If valid flash command received...
+
+                //  Tell OpenOCD Task to quit
+
+                //  Wait for OpenOCD task to quit
             },
             _ = openocd_task => {
                 //  OpenOCD Task completed
                 println!("OpenOCD task completed");
+
+                //  Start a new OpenOCD Task, dropping the old one
+                openocd_task.set(transmit_log("test1.sh").fuse());
 
                 //  Start a new Telegram Task, dropping the old one
             },
