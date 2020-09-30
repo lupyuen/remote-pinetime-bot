@@ -25,9 +25,123 @@ error_chain!{
     }
 }
 
-/// Listen for commands and handle them
+/// Listen for Telegram Bot commands and execute them with OpenOCD. Log Semihosting Debug Messages emitted by OpenOCD to a Telegram Channel.
 #[tokio::main]
-async fn main2() -> Result<()> {
+async fn main() -> Result<()> {
+    //  Event loop based on https://rust-lang.github.io/async-book/06_multiple_futures/03_select.html#concurrent-tasks-in-a-select-loop-with-fuse-and-futuresunordered
+    //  OpenOCD is not running initially
+    let openocd_task = Fuse::terminated();
+
+    //  Init the Telegram API
+    let token = env::var("TELEGRAM_BOT_TOKEN").expect("TELEGRAM_BOT_TOKEN not set");
+    let api = Api::new(token);
+
+    //  Fetch new Telegram updates via long poll method
+    let mut telegram_stream = api.stream();
+
+    //  No pending flash command
+    let mut pending_command = false;
+
+    //  Loop forever processing Telegram and OpenOCD events
+    pin_mut!(openocd_task);
+    loop {
+        //  Wait for Telegram Update to be received or OpenOCD Task to complete
+        println!("Before Select: OpenOCD Task Terminated is {:?}", openocd_task.is_terminated());
+        select! {
+            //  If Telegram Update received...
+            telegram_update = telegram_stream.next().fuse() => {
+                println!("Telegram update received: {:?}", telegram_update);
+
+                //  If valid flash command received...
+                pending_command = true;
+
+                //  TODO: Tell OpenOCD Task to quit
+
+                //  Wait for OpenOCD task to quit
+            },
+
+            //  If OpenOCD Task completed...
+            openocd_result = openocd_task => {
+                println!("OpenOCD task completed: {:?}", openocd_result);
+            },
+
+            //  If everything completed, panic since Telegram Task should always be running
+            complete => panic!("Telegram task completed unexpectedly"),
+        }
+
+        println!("Select OK: OpenOCD Task Terminated is {:?}", openocd_task.is_terminated());
+        //  If OpenOCD Task is completed and there is a pending flash command...
+        if openocd_task.is_terminated() && pending_command {
+            pending_command = false;
+            //  TODO: Start a new OpenOCD Task, with the flash command
+            openocd_task.set(transmit_log("test1.sh").fuse());
+        }
+    }
+}
+
+/// Transmit the Semihosting Log from OpenOCD to Telegram Channel. Based on https://docs.rs/tokio/0.2.22/tokio/process/index.html
+async fn transmit_log(script: &str) -> Result<()> {
+    //  TODO: Spawn the OpenOCD process
+    let mut cmd = Command::new("bash");
+    let cmd = cmd.arg(script);
+
+    // Specify that we want the command's standard output piped back to us.
+    // By default, standard input/output/error will be inherited from the
+    // current process (for example, this means that standard input will
+    // come from the keyboard and standard output/error will go directly to
+    // the terminal if this process is invoked from the command line).
+    cmd.stdout(Stdio::piped());
+
+    let mut child = cmd.spawn()
+        .expect("failed to spawn command");
+
+    let stdout = child.stdout.take()
+        .expect("child did not have a handle to stdout");
+
+    //  TODO: In case of error, return the error log
+
+    //  TODO: In the background, read the OpenOCD output line by line
+    let mut reader = BufReader::new(stdout).lines();
+
+    // Ensure the child process is spawned in the runtime so it can
+    // make progress on its own while we await for any output.
+    tokio::spawn(async {
+        let status = child.await
+            .expect("child process encountered an error");
+
+        println!("child status was: {}", status);
+    });
+
+    //  TODO: Transmit each line of OpenOCD output to the Telegram Channel
+    while let Some(line) = reader.next_line().await? {
+        println!("Line: {}", line);
+    }
+
+    //  TODO: Wait for "*** Done" and return the message, while continuing OpenOCD output processing in the background
+    //  See https://rust-lang-nursery.github.io/rust-cookbook/concurrency/threads.html#maintain-global-mutable-state
+    Ok(())
+}
+
+/*
+//  TODO: Send message to Telegram channel
+if let UpdateKind::ChannelPost(post) = update.kind {            
+    if let MessageKind::Text { ref data, .. } = post.kind {
+        // Print received text message to stdout.
+        println!("<{}>: {}", "???", data);
+
+        // Answer message with "Hi".
+        api.send(post.text_reply(format!(
+            "Hi, {}! You just wrote '{}'",
+            "???", data
+        )))
+        .await?;
+    }
+}
+*/
+
+/// Previously: Listen for commands and handle them
+#[tokio::main]
+async fn old_main() -> Result<()> {
     /*
     let t1 = transmit_log("test1.sh");
     let t2 = transmit_log("test2.sh");
@@ -76,60 +190,6 @@ async fn main2() -> Result<()> {
     }
 
     Ok(())
-}
-
-/// Listen for commands and handle them
-#[tokio::main]
-async fn main() -> Result<()> {
-    //  Event loop based on https://rust-lang.github.io/async-book/06_multiple_futures/03_select.html#concurrent-tasks-in-a-select-loop-with-fuse-and-futuresunordered
-    //  OpenOCD is not running initially
-    let openocd_task = Fuse::terminated();
-
-    //  Init the Telegram API
-    let token = env::var("TELEGRAM_BOT_TOKEN").expect("TELEGRAM_BOT_TOKEN not set");
-    let api = Api::new(token);
-
-    //  Fetch new Telegram updates via long poll method
-    let mut telegram_stream = api.stream();
-
-    //  No pending flash command
-    let mut pending_command = false;
-
-    //  Loop forever processing Telegram and OpenOCD events
-    pin_mut!(openocd_task);
-    loop {
-        //  Wait for Telegram Update to be received or OpenOCD Task to complete
-        println!("Before Select: OpenOCD Task Terminated is {:?}", openocd_task.is_terminated());
-        select! {
-            //  If Telegram Update received...
-            telegram_update = telegram_stream.next().fuse() => {
-                println!("Telegram update received: {:?}", telegram_update);
-
-                //  If valid flash command received...
-                pending_command = true;
-
-                //  Tell OpenOCD Task to quit
-
-                //  Wait for OpenOCD task to quit
-            },
-
-            //  If OpenOCD Task completed...
-            openocd_result = openocd_task => {
-                println!("OpenOCD task completed: {:?}", openocd_result);
-            },
-
-            //  If everything completed, panic since Telegram Task should always be running
-            complete => panic!("Telegram task completed unexpectedly"),
-        }
-
-        println!("Select OK: OpenOCD Task Terminated is {:?}", openocd_task.is_terminated());
-        //  If OpenOCD Task is completed and there is a pending flash command...
-        if openocd_task.is_terminated() && pending_command {
-            pending_command = false;
-            //  Start a new OpenOCD Task, with the flash command
-            openocd_task.set(transmit_log("test1.sh").fuse());
-        }
-    }
 }
 
 /// Handle a command e.g. "flash - flash 0x0 https://.../firmware.bin"
@@ -260,68 +320,6 @@ async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
     println!("Output: {}", output);
     Ok(output)
 }
-
-/// Transmit the Semihosting Log from OpenOCD to Telegram Channel. Based on https://docs.rs/tokio/0.2.22/tokio/process/index.html
-async fn transmit_log(script: &str) -> Result<()> {
-    //  TODO: Stop the current OpenOCD process by sending "exit" to the TCP socket
-    
-    //  TODO: Spawn the OpenOCD process
-    let mut cmd = Command::new("bash");
-    let cmd = cmd.arg(script);
-
-    // Specify that we want the command's standard output piped back to us.
-    // By default, standard input/output/error will be inherited from the
-    // current process (for example, this means that standard input will
-    // come from the keyboard and standard output/error will go directly to
-    // the terminal if this process is invoked from the command line).
-    cmd.stdout(Stdio::piped());
-
-    let mut child = cmd.spawn()
-        .expect("failed to spawn command");
-
-    let stdout = child.stdout.take()
-        .expect("child did not have a handle to stdout");
-
-    //  TODO: In case of error, return the error log
-
-    //  TODO: In the background, read the OpenOCD output line by line
-    let mut reader = BufReader::new(stdout).lines();
-
-    // Ensure the child process is spawned in the runtime so it can
-    // make progress on its own while we await for any output.
-    tokio::spawn(async {
-        let status = child.await
-            .expect("child process encountered an error");
-
-        println!("child status was: {}", status);
-    });
-
-    //  TODO: Transmit each line of OpenOCD output to the Telegram Channel
-    while let Some(line) = reader.next_line().await? {
-        println!("Line: {}", line);
-    }
-
-    //  TODO: Wait for "*** Done" and return the message, while continuing OpenOCD output processing in the background
-    //  See https://rust-lang-nursery.github.io/rust-cookbook/concurrency/threads.html#maintain-global-mutable-state
-    Ok(())
-}
-
-/*
-    //  Send message to the channel
-    } else if let UpdateKind::ChannelPost(post) = update.kind {            
-        if let MessageKind::Text { ref data, .. } = post.kind {
-            // Print received text message to stdout.
-            println!("<{}>: {}", "???", data);
-
-            // Answer message with "Hi".
-            api.send(post.text_reply(format!(
-                "Hi, {}! You just wrote '{}'",
-                "???", data
-            )))
-            .await?;
-        }
-    }
-*/
 
 /// Download the URL to the temporary directory. Returns the downloaded pathname.
 async fn download_file(url: &str, tmp_dir: &tempfile::TempDir) -> Result<String> {
