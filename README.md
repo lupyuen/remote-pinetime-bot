@@ -136,6 +136,30 @@ Here is the live streaming setup with (left to right) Raspberry Pi 4, Raspberry 
 
 ![Raspberry Pi Live Stream](https://lupyuen.github.io/images/remote-pinetime-stream.jpg)
 
+Cover with a Papier-Mâché Enclosure to block the reflection on the Magnifying Glasses (like a telescope)...
+
+![Remote PineTime Enclosure](https://lupyuen.github.io/images/remote-pinetime-enclosure.jpg)
+
+How to make the Papier-Mâché Enclosure...
+
+1. Position the Raspberry Pi, Camera Module, Two Magnifying Glasses and PineTime
+
+1. Build a Scaffold by resting an Envelope on the Raspberry Pi, Camera Module and Magnifying Glasses
+
+1. Complete the Scaffold by laying a folded piece of A4-size paper
+
+1. Paste strips of Paper Towel on the Scaffold, be sure to cover Raspbery Pi. I created the paste by mixing half-cup of Flour with half-cup of Water.
+
+1. Let the Papier-Mâché dry overnight to form the shape of the enclosure. Trim the Papier-Mâché with scissors. Microwave the Papier-Mâché to dry it.
+
+1. Paste a second layer of Paper Towel strips, in an orderly fashion.
+
+1. Microwave the Papier-Mâché for one minute, let it cool. Use overturned bowls to support the structure. Repeat 3 times until the Papier-Mâché is dry.
+
+1. Trim the Papier-Mâché Enclosure with scissors.
+
+![Making the Remote PineTime Enclosure](https://lupyuen.github.io/images/remote-pinetime-enclosure2.jpg)
+
 ## TODO
 
 1. Write Semihosting Debug Log to a separate Telegram Channel
