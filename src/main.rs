@@ -97,12 +97,20 @@ async fn run_loop() {
         //  Wait for Telegram Task or OpenOCD Task to complete
         select! {
             _ = telegram_task => {
+                //  Telegram Task completed
+                println!("Telegram task completed");
+
                 //  Start a new OpenOCD Task, dropping the old one
                 openocd_task.set(transmit_log("test1.sh").fuse());
             },
             _ = openocd_task => {
+                //  OpenOCD Task completed
                 println!("OpenOCD task completed");
+
+                //  Start a new Telegram Task, dropping the old one
             },
+            //  Panic if everything completed, since Telegram Task should always be running
+            complete => panic!("Telegram task completed unexpectedly"),
         }
     }
 }
