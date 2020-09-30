@@ -92,16 +92,21 @@ async fn main() -> Result<()> {
     //  Fetch new Telegram updates via long poll method
     let mut telegram_stream = api.stream();
 
+    //  No pending flash command
+    let mut pending_command = false;
+
     //  Loop forever processing Telegram and OpenOCD events
     pin_mut!(openocd_task);
     loop {
         //  Wait for Telegram Update or OpenOCD Task to complete
+        println!("Before Select: OpenOCD Task Terminated is {:?}", openocd_task.is_terminated());
         select! {
             _ = telegram_stream.next().fuse() => {
                 //  Telegram update received
                 println!("Telegram update received");
 
                 //  If valid flash command received...
+                pending_command = true;
 
                 //  Tell OpenOCD Task to quit
 
@@ -110,12 +115,17 @@ async fn main() -> Result<()> {
             _ = openocd_task => {
                 //  OpenOCD Task completed
                 println!("OpenOCD task completed");
-
-                //  Start a new OpenOCD Task, dropping the old one
-                openocd_task.set(transmit_log("test1.sh").fuse());
             },
             //  Panic if everything completed, since Telegram Task should always be running
             complete => panic!("Telegram task completed unexpectedly"),
+        }
+
+        println!("Select OK: OpenOCD Task Terminated is {:?}", openocd_task.is_terminated());
+        //  If OpenOCD Task is completed and there is a pending flash command...
+        if openocd_task.is_terminated() && pending_command {
+            pending_command = false;
+            //  Start a new OpenOCD Task, with the flash command
+            openocd_task.set(transmit_log("test1.sh").fuse());
         }
     }
 }
