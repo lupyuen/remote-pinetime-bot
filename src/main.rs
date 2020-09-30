@@ -97,7 +97,7 @@ async fn main() -> Result<()> {
     loop {
         //  Wait for Telegram Update or OpenOCD Task to complete
         select! {
-            _ = telegram_stream.next() => {
+            _ = telegram_stream.next().fuse() => {
                 //  Telegram update received
                 println!("Telegram update received");
 
