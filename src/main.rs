@@ -2,8 +2,12 @@
 //  Chat with BotFather, create bot "PineTime Bot"
 //  Enter "/mybots", select "PineTime Bot"
 //  Select "Edit Commands", enter "flash - flash 0x0 https://.../firmware.bin"
+#![recursion_limit="256"]
 use std::{env, fs::File, string::String};
 use std::process::Stdio;
+use std::net::{SocketAddrV4, Ipv4Addr, TcpListener, TcpStream};
+use std::io::prelude::*;
+use std::io::{Read};
 use tokio::io::{BufReader, AsyncBufReadExt};
 use tokio::process::Command;
 use futures::{
@@ -50,17 +54,41 @@ async fn main() -> Result<()> {
         println!("Before Select: OpenOCD Task Terminated is {:?}", openocd_task.is_terminated());
         select! {
             //  If Telegram Update received...
-            telegram_update = telegram_stream.next().fuse() => {
-                println!("Telegram update received: {:?}", telegram_update);
-
-                //  TODO: Process Telegram Bot command: /flash 0x0 https://.../firmware.bin
-
-                //  If valid flash command received...
-                pending_command = true;
-
-                //  TODO: Tell OpenOCD Task to quit
-
-                //  Wait for OpenOCD task to quit
+            update = telegram_stream.next().fuse() => {
+                //  If the received update contains a new message...
+                if let Some(update) = update {
+                    let update = update ? ;
+                    println!("----- {:?}", update);
+                    if let UpdateKind::Message(message) = update.kind {
+                        if let MessageKind::Text { ref data, .. } = message.kind {
+                            //  Show received message
+                            println!("-- <{}>: {}", &message.from.first_name, data);
+    
+                            //  TODO: Handle the Telegram Bot command: /flash 0x0 https://.../firmware.bin
+                            /*
+                            //  Handle the command
+                            match handle_command(&api, &message, data).await {
+                                //  Command failed
+                                Err(err) => println!("Error: {}", err),
+                                //  Command succeeded
+                                Ok(_)    => {}
+                            }
+                            */
+    
+                            //  If valid flash command received...
+                            pending_command = true;
+    
+                            //  Tell OpenOCD Task to quit
+                            if !openocd_task.is_terminated() {
+                                println!("Send exit command to OpenOCD");
+                                let mut stream = TcpStream::connect("127.0.0.1:4444") ? ;
+                                stream.write(b"exit\r") ? ;    
+                            }
+                    
+                            //  Wait for OpenOCD task to quit
+                        }
+                    }
+                }
             },
 
             //  If OpenOCD Task completed...
@@ -85,8 +113,12 @@ async fn main() -> Result<()> {
 /// Transmit the Semihosting Log from OpenOCD to Telegram Channel. Based on https://docs.rs/tokio/0.2.22/tokio/process/index.html
 async fn transmit_log(script: &str) -> Result<()> {
     //  TODO: Spawn the OpenOCD process
+    let mut cmd = Command::new("cargo");
+    let cmd = cmd.arg("test").arg("--").arg("--nocapture");
+    /*
     let mut cmd = Command::new("bash");
     let cmd = cmd.arg(script);
+    */
 
     // Specify that we want the command's standard output piped back to us.
     // By default, standard input/output/error will be inherited from the
