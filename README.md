@@ -2,6 +2,8 @@
 
 # Remote PineTime: Flash and Test a PineTime Smart Watch remotely, from anywhere in the world
 
+[Watch the Demo Video on YouTube](https://youtu.be/mMLWgzJSAGI)
+
 Remote PineTime is a [PineTime Smart Watch](https://wiki.pine64.org/index.php/PineTime) in my bedroom (in Singapore) that's configured to allow anyone in the world to flash and test firmware remotely.
 
 The Remote PineTime Bot (created in Rust) watches a Telegram group for flashing commands and flashes the firmware to PineTime. 
@@ -81,6 +83,8 @@ To build your own firmware in a web browser (without installing any IDE or toolc
 1. [Preview PineTime Watch Faces in your Web Browser with WebAssembly](https://lupyuen.github.io/pinetime-rust-mynewt/articles/simulator)
 
 How the flashing looks in Telegram...
+
+[Watch the Demo Video on YouTube](https://youtu.be/mMLWgzJSAGI)
 
 ![Flashing Remote PineTime with Telegram](https://lupyuen.github.io/images/remote-pinetime.png)
 
