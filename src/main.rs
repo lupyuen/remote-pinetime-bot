@@ -55,7 +55,6 @@ async fn main() -> Result<()> {
     pin_mut!(openocd_task);
     loop {
         //  Wait for Telegram Update to be received or OpenOCD Task to complete
-        println!("Before Select: OpenOCD Task Terminated is {:?}", openocd_task.is_terminated());
         select! {
             //  If Telegram Update received...
             update = telegram_stream.next().fuse() => {
