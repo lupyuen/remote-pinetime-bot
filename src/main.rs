@@ -4,7 +4,7 @@
 //  Select "Edit Commands", enter "flash - flash 0x0 https://.../firmware.bin"
 #![recursion_limit="256"]
 use std::{env, fs::File, string::String};
-use std::process::Stdio;
+use std::process::{Stdio};
 use std::net::{SocketAddrV4, Ipv4Addr, TcpListener, TcpStream};
 use std::io::prelude::*;
 use std::io::{Read};
@@ -169,12 +169,12 @@ async fn flash_firmware(addr: String, path: String) -> Result<()> {
     //  let mut cmd = Command::new("bash");
     //  let cmd = cmd.arg(script);
 
-    //  Specify that we want the command's standard output piped back to us.
-    //  By default, standard input/output/error will be inherited from the
-    //  current process (for example, this means that standard input will
-    //  come from the keyboard and standard output/error will go directly to
-    //  the terminal if this process is invoked from the command line).
+    //  Specify that we want the command's standard output and standard error piped back to us.
+    //  By default, standard input/output/error will be inherited from the current process 
+    //  (for example, this means that standard input will come from the keyboard and 
+    //  standard output/error will go directly to the terminal if this process is invoked from the command line).
     cmd.stdout(Stdio::piped());
+    cmd.stderr(Stdio::piped());
 
     let mut child = cmd.spawn()
         .expect("failed to spawn command");
@@ -205,6 +205,10 @@ async fn flash_firmware(addr: String, path: String) -> Result<()> {
     //  See https://rust-lang-nursery.github.io/rust-cookbook/concurrency/threads.html#maintain-global-mutable-state
     Ok(())
 }
+
+/* Remote PineTime Log Channel:
+----- Update { id: 761638748, kind: ChannelPost(ChannelPost { id: MessageId(45), date: 1601533862, chat: Channel { id: ChannelId(-1001221686801), title: "Remote PineTime Log", username: Some("remotepinetimelog"), invite_link: None }, forward: None, reply_to_message: None, edit_date: None, kind: NewChatTitle { data: "Remote PineTime Log" } }) }
+*/
 
 /*
 //  TODO: Send message to Telegram channel
