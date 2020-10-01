@@ -201,7 +201,9 @@ async fn flash_firmware(api: &Api, message: &Message, addr: String, path: String
     while let Some(line) = reader.next_line().await? {
         println!("Line: {}", line);
         if line.len() > 0 {
-            api.send(message.text_reply(line))    
+            api.send(
+                line
+            )    
             .await ? ;
         }
     }
@@ -212,7 +214,10 @@ async fn flash_firmware(api: &Api, message: &Message, addr: String, path: String
 }
 
 /* Remote PineTime Log Channel:
------ Update { id: 761638748, kind: ChannelPost(ChannelPost { id: MessageId(45), date: 1601533862, chat: Channel { id: ChannelId(-1001221686801), title: "Remote PineTime Log", username: Some("remotepinetimelog"), invite_link: None }, forward: None, reply_to_message: None, edit_date: None, kind: NewChatTitle { data: "Remote PineTime Log" } }) }
+----- Update { id: 761638748, kind: ChannelPost(
+    ChannelPost { id: MessageId(45), date: 1601533862, chat: 
+        Channel { id: ChannelId(-1001221686801), title: "Remote PineTime Log", username: Some("remotepinetimelog"), invite_link: None }, 
+        forward: None, reply_to_message: None, edit_date: None, kind: NewChatTitle { data: "Remote PineTime Log" } }) }
 */
 
 /*
