@@ -228,6 +228,8 @@ async fn flash_firmware(api: &Api, addr: String, path: String) -> Result<()> {
             buf = "".to_string();
         }
     }
+
+    //  Transmit remaining output
     if buf.len() > 0 {
         api.send(
             SendMessage::new(channel.clone(), 
