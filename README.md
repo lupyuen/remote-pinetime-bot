@@ -12,6 +12,10 @@ To flash your own firmware and test the PineTime in my bedroom, join the "Remote
 
 https://t.me/remotepinetime
 
+View the flashing log (from OpenOCD) and debug message log (from Arm Semihosting) in the "Remote PineTime Log" Telegram Channel here...
+
+https://t.me/remotepinetimelog
+
 And watch the "Remote PineTime" live stream on YouTube...
 
 https://youtu.be/WfuW5-TPjZM
@@ -85,6 +89,8 @@ Got questions on PineTime? Chat with the PineTime Community on Matrix / Discord 
 https://wiki.pine64.org/index.php/PineTime#Community
 
 ## Start Telegram Bot
+
+Note: The latest version of the bot that transmits Semihosting Debug Messages is in the `log` branch
 
 To create your own Telegram Bot...
 
