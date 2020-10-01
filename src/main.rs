@@ -8,6 +8,7 @@ use std::process::{Stdio};
 use std::net::{SocketAddrV4, Ipv4Addr, TcpListener, TcpStream};
 use std::io::prelude::*;
 use std::io::{Read};
+use std::time::{Duration, Instant};
 use tokio::io::{BufReader, AsyncBufReadExt};
 use tokio::process::Command;
 use futures::{
@@ -209,14 +210,19 @@ async fn flash_firmware(api: &Api, addr: String, path: String) -> Result<()> {
     };
 
     //  Transmit each line of OpenOCD output to the Telegram Channel
+    let mut start = Instant::now();
     while let Some(line) = reader.next_line().await? {
+        if line.len() == 0 { continue }
         println!("Line: {}", line);
-        if line.len() > 0 {
+        
+        //  Transmit in chunks of 10-second interval, because Telegram server would return "Too Many Requests" error
+        if start.elapsed() >= Duration::from_secs(10) {
+            start = Instant::now();
             api.send(
                 SendMessage::new(channel.clone(), 
                 line)
             )    
-            .await ? ;
+            .await ? ;    
         }
     }
 
@@ -224,30 +230,6 @@ async fn flash_firmware(api: &Api, addr: String, path: String) -> Result<()> {
     //  See https://rust-lang-nursery.github.io/rust-cookbook/concurrency/threads.html#maintain-global-mutable-state
     Ok(())
 }
-
-/* Remote PineTime Log Channel:
------ Update { id: 761638748, kind: ChannelPost(
-    ChannelPost { id: MessageId(45), date: 1601533862, chat: 
-        Channel { id: ChannelId(-1001221686801), title: "Remote PineTime Log", username: Some("remotepinetimelog"), invite_link: None }, 
-        forward: None, reply_to_message: None, edit_date: None, kind: NewChatTitle { data: "Remote PineTime Log" } }) }
-*/
-
-/*
-//  TODO: Send message to Telegram channel
-if let UpdateKind::ChannelPost(post) = update.kind {            
-    if let MessageKind::Text { ref data, .. } = post.kind {
-        // Print received text message to stdout.
-        println!("<{}>: {}", "???", data);
-
-        // Answer message with "Hi".
-        api.send(post.text_reply(format!(
-            "Hi, {}! You just wrote '{}'",
-            "???", data
-        )))
-        .await?;
-    }
-}
-*/
 
 /// Handle a command e.g. "/flash 0x0 https://.../firmware.bin". Return (address, filename).
 async fn handle_command(api: &Api, message: &Message, cmd: &str, tmp_dir: &tempfile::TempDir) -> Result<Option<(String, String)>> {
@@ -280,26 +262,28 @@ async fn handle_command(api: &Api, message: &Message, cmd: &str, tmp_dir: &tempf
     let addr = split[1];      //  e.g. 0x0
     let firmware = split[2];  //  e.g. https://.../firmware.bin
     api.send(message.text_reply(format!(
-        "Flashing {} to PineTime at address {}...",
+        "Flashing {} to PineTime at address {}... View log at https://t.me/remotepinetimelog",
         firmware, addr
     )))
     .await ? ;
 
     //  Download the firmware
     match download_file(firmware, &tmp_dir).await {
-        Err(_) => {  //  Unable to download
+        Err(_)   => {  //  If unable to download firmware...
             api.send(message.text_reply(format!(
                 "Unable to download {}", firmware
             )))
             .await ? ;
             Ok(None)  //  Nothing to flash
         }
-        Ok(path) => {  //  Download OK
+        Ok(path) => {  //  If firmware was downloaded...
             //  Flash the firmware and reboot PineTime
+            /*
             api.send(message.text_reply(format!(
-                "Downloaded {}", firmware
+                "Downloaded {}... View log at https://t.me/remotepinetimelog", firmware
             )))
             .await ? ;
+            */
             println!("path={}", path);
             Ok(Some((addr.to_string(), path)))  //  Flash the firmware at the address
         }
