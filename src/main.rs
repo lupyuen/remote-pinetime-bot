@@ -111,6 +111,7 @@ async fn main() -> Result<()> {
             //  Start a new OpenOCD Task with the flash command
             let cmd = pending_command.unwrap();
             let task = flash_firmware(
+                &api, &message,
                 cmd.0,  //  Address e.g. 0x0
                 cmd.1   //  Filename e.g. firmware.bin
             );
@@ -124,7 +125,7 @@ async fn main() -> Result<()> {
 
 /// Spawn OpenOCD to flash the downloaded firmware to PineTime at the address.
 /// Transmit the Semihosting Log from OpenOCD to Telegram Channel. Based on https://docs.rs/tokio/0.2.22/tokio/process/index.html
-async fn flash_firmware(addr: String, path: String) -> Result<()> {
+async fn flash_firmware(api: &Api, message: &Message, addr: String, path: String) -> Result<()> {
     //  For Raspberry Pi:
     //  cd $HOME/pinetime-updater
     //  openocd-spi/bin/openocd \
@@ -199,6 +200,10 @@ async fn flash_firmware(addr: String, path: String) -> Result<()> {
     //  TODO: Transmit each line of OpenOCD output to the Telegram Channel
     while let Some(line) = reader.next_line().await? {
         println!("Line: {}", line);
+        if line.len() > 0 {
+            api.send(message.text_reply(line))    
+            .await ? ;
+        }
     }
 
     //  TODO: Wait for "*** Done" and return the message, while continuing OpenOCD output processing in the background
