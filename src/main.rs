@@ -25,7 +25,8 @@ error_chain!{
     }
 }
 
-/// Listen for Telegram Bot commands and execute them with OpenOCD. Log Semihosting Debug Messages emitted by OpenOCD to a Telegram Channel.
+/// Listen for Telegram Bot commands and execute them with OpenOCD. 
+/// Log Semihosting Debug Messages emitted by OpenOCD to a Telegram Channel.
 #[tokio::main]
 async fn main() -> Result<()> {
     //  Event loop based on https://rust-lang.github.io/async-book/06_multiple_futures/03_select.html#concurrent-tasks-in-a-select-loop-with-fuse-and-futuresunordered
@@ -51,6 +52,8 @@ async fn main() -> Result<()> {
             //  If Telegram Update received...
             telegram_update = telegram_stream.next().fuse() => {
                 println!("Telegram update received: {:?}", telegram_update);
+
+                //  TODO: Process Telegram Bot command: /flash 0x0 https://.../firmware.bin
 
                 //  If valid flash command received...
                 pending_command = true;
@@ -344,4 +347,34 @@ async fn download_file(url: &str, tmp_dir: &tempfile::TempDir) -> Result<String>
     let content = response.bytes().await ? ;
     std::io::copy(&mut content.as_ref(), &mut dest) ? ;
     Ok(fname.to_str().unwrap().to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    // Note this useful idiom: importing names from outer (for mod tests) scope.
+    use super::*;
+
+    #[test]
+    fn test_add() {
+        assert_eq!(1, 1);
+    }
+
+    use std::net::{SocketAddrV4, Ipv4Addr, TcpListener};
+    use std::io::{Read};
+
+    /// Simulate an OpenOCD server that listens for commands on port 4444
+    #[test]
+    fn test_server() -> Result<()> {
+        let loopback = Ipv4Addr::new(127, 0, 0, 1);
+        let socket = SocketAddrV4::new(loopback, 0);
+        let listener = TcpListener::bind(socket)?;
+        let port = 4444;  //  listener.local_addr()?;
+        println!("Listening on {}, access this port to end the program", port);
+        let (mut tcp_stream, addr) = listener.accept()?; //block  until requested
+        println!("Connection received! {:?} is sending data.", addr);
+        let mut input = String::new();
+        let _ = tcp_stream.read_to_string(&mut input)?;
+        println!("{:?} says {}", addr, input);
+        Ok(())
+    }
 }
