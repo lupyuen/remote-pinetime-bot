@@ -211,19 +211,29 @@ async fn flash_firmware(api: &Api, addr: String, path: String) -> Result<()> {
 
     //  Transmit each line of OpenOCD output to the Telegram Channel
     let mut start = Instant::now();
+    let mut buf = "".to_string();
     while let Some(line) = reader.next_line().await? {
         if line.len() == 0 { continue }
         println!("Line: {}", line);
-        
+        buf.push_str(&line); buf.push_str("\n");
+
         //  Transmit in chunks of 10-second interval, because Telegram server would return "Too Many Requests" error
         if start.elapsed() >= Duration::from_secs(10) {
-            start = Instant::now();
             api.send(
                 SendMessage::new(channel.clone(), 
-                line)
+                buf)
             )    
             .await ? ;    
+            start = Instant::now();
+            buf = "".to_string();
         }
+    }
+    if buf.len() > 0 {
+        api.send(
+            SendMessage::new(channel.clone(), 
+            buf)
+        )
+        .await ? ;
     }
 
     //  TODO: Wait for "*** Done" and return the message, while continuing OpenOCD output processing in the background
