@@ -174,19 +174,22 @@ async fn flash_firmware(api: &Api, addr: String, path: String) -> Result<()> {
     //  By default, standard input/output/error will be inherited from the current process 
     //  (for example, this means that standard input will come from the keyboard and 
     //  standard output/error will go directly to the terminal if this process is invoked from the command line).
-    //  cmd.stdout(Stdio::piped());
     cmd.stderr(Stdio::piped());
+    //  cmd.stdout(Stdio::piped());
 
     let mut child = cmd.spawn()
         .expect("failed to spawn command");
 
-    let stdout = child.stdout.take()
-        .expect("child did not have a handle to stdout");
+    let stderr = child.stderr.take()
+        .expect("child did not have a handle to stderr");
+    //  let stdout = child.stdout.take()
+    //      .expect("child did not have a handle to stdout");
 
     //  TODO: In case of error, return the error log
 
     //  In the background, read the OpenOCD output line by line
-    let mut reader = BufReader::new(stdout).lines();
+    let mut reader = BufReader::new(stderr).lines();
+    //  let mut reader = BufReader::new(stdout).lines();
 
     // Ensure the child process is spawned in the runtime so it can
     // make progress on its own while we await for any output.
