@@ -62,6 +62,14 @@ To flash [Rust on RIOT](https://github.com/lupyuen/pinetime-rust-riot)...
 /flash 0x0 https://github.com/lupyuen/pinetime-rust-riot/releases/download/v1.0.3/PineTime.bin
 ```
 
+To flash `pinetime-rust-mynewt` firmware that emits Semihosting Debug Messages...
+
+```
+/flash 0x0 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v5.0.4/mynewt.elf.bin
+
+/flash 0x8000 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v4.1.1/my_sensor_app.img
+```
+
 To build your own firmware in a web browser (without installing any IDE or toolchain) check out the articles...
 
 1. [Build PineTime Firmware in the Cloud with GitHub Actions](https://lupyuen.github.io/pinetime-rust-mynewt/articles/cloud)
