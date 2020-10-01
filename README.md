@@ -104,14 +104,21 @@ To create your own Telegram Bot...
 
 1. Select `Edit Commands`, enter `flash - flash 0x0 https://.../firmware.bin`
 
-To run your own Telegram Bot: Clone this repo and run...
+To run your own Telegram Bot: Clone this repo and run this in a shell script...
 
 ```bash
+#  Set your Telegram Bot Token
 export TELEGRAM_BOT_TOKEN=???
+#  This is needed to fix the h2 / indexmap build error "ids: IndexMap<StreamId, SlabIndex> expected 3 type arguments"
+export CARGO_FEATURE_STD=1
+#  Show Rust stack trace
+export RUST_BACKTRACE=1
+
 cd ~/remote-pinetime-bot
 for (( ; ; ))
 do
     git pull
+    pkill openocd
     cargo run
     echo "---------ERROR--------"
     sleep 30
@@ -134,7 +141,7 @@ sudo udevadm control --reload-rules
 
 ## Live Video Stream
 
-To live stream your Raspberry Pi camera to YouTube...
+To live stream your Raspberry Pi camera to YouTube: Run this in a shell script...
 
 ```bash
 for (( ; ; ))
