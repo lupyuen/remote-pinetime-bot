@@ -111,7 +111,7 @@ async fn main() -> Result<()> {
             //  Start a new OpenOCD Task with the flash command
             let cmd = pending_command.unwrap();
             let task = flash_firmware(
-                &api, &message,
+                &api,
                 cmd.0,  //  Address e.g. 0x0
                 cmd.1   //  Filename e.g. firmware.bin
             );
@@ -125,7 +125,7 @@ async fn main() -> Result<()> {
 
 /// Spawn OpenOCD to flash the downloaded firmware to PineTime at the address.
 /// Transmit the Semihosting Log from OpenOCD to Telegram Channel. Based on https://docs.rs/tokio/0.2.22/tokio/process/index.html
-async fn flash_firmware(api: &Api, message: &Message, addr: String, path: String) -> Result<()> {
+async fn flash_firmware(api: &Api, addr: String, path: String) -> Result<()> {
     //  For Raspberry Pi:
     //  cd $HOME/pinetime-updater
     //  openocd-spi/bin/openocd \
@@ -174,7 +174,7 @@ async fn flash_firmware(api: &Api, message: &Message, addr: String, path: String
     //  By default, standard input/output/error will be inherited from the current process 
     //  (for example, this means that standard input will come from the keyboard and 
     //  standard output/error will go directly to the terminal if this process is invoked from the command line).
-    cmd.stdout(Stdio::piped());
+    //  cmd.stdout(Stdio::piped());
     cmd.stderr(Stdio::piped());
 
     let mut child = cmd.spawn()
@@ -185,7 +185,7 @@ async fn flash_firmware(api: &Api, message: &Message, addr: String, path: String
 
     //  TODO: In case of error, return the error log
 
-    //  TODO: In the background, read the OpenOCD output line by line
+    //  In the background, read the OpenOCD output line by line
     let mut reader = BufReader::new(stdout).lines();
 
     // Ensure the child process is spawned in the runtime so it can
@@ -197,12 +197,21 @@ async fn flash_firmware(api: &Api, message: &Message, addr: String, path: String
         println!("child status was: {}", status);
     });
 
-    //  TODO: Transmit each line of OpenOCD output to the Telegram Channel
+    //  Specify Telegram Channel to transmit OpenOCD output
+    let channel = Channel {
+        id:             ChannelId::new(-1001221686801), 
+        title:          "Remote PineTime Log".to_string(), 
+        username:       Some( "remotepinetimelog".to_string() ), 
+        invite_link:    None
+    };
+
+    //  Transmit each line of OpenOCD output to the Telegram Channel
     while let Some(line) = reader.next_line().await? {
         println!("Line: {}", line);
         if line.len() > 0 {
             api.send(
-                line
+                SendMessage::new(channel.clone(), 
+                line)
             )    
             .await ? ;
         }
