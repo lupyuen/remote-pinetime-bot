@@ -353,12 +353,6 @@ async fn download_file(url: &str, tmp_dir: &tempfile::TempDir) -> Result<String>
 mod tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
-
-    #[test]
-    fn test_add() {
-        assert_eq!(1, 1);
-    }
-
     use std::net::{SocketAddrV4, Ipv4Addr, TcpListener};
     use std::io::{Read};
 
@@ -366,9 +360,9 @@ mod tests {
     #[test]
     fn test_server() -> Result<()> {
         let loopback = Ipv4Addr::new(127, 0, 0, 1);
-        let socket = SocketAddrV4::new(loopback, 0);
+        let socket = SocketAddrV4::new(loopback, 4444);
         let listener = TcpListener::bind(socket)?;
-        let port = 4444;  //  listener.local_addr()?;
+        let port = listener.local_addr()?;
         println!("Listening on {}, access this port to end the program", port);
         let (mut tcp_stream, addr) = listener.accept()?; //block  until requested
         println!("Connection received! {:?} is sending data.", addr);
