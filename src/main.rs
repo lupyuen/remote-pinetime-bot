@@ -217,8 +217,8 @@ async fn flash_firmware(api: &Api, addr: String, path: String) -> Result<()> {
         println!("Line: {}", line);
         buf.push_str(&line); buf.push_str("\n");
 
-        //  Transmit in chunks of 10-second interval, because Telegram server would return "Too Many Requests" error
-        if start.elapsed() >= Duration::from_secs(10) {
+        //  Transmit in chunks of 2-second interval, because Telegram server would return "Too Many Requests" error
+        if start.elapsed() >= Duration::from_secs(2) {
             api.send(
                 SendMessage::new(channel.clone(), 
                 buf)
