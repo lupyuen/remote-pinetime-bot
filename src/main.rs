@@ -45,8 +45,11 @@ async fn main() -> Result<()> {
     let mut telegram_stream = api.stream();
 
     //  No pending flash command
-    let mut pending_command = false;
+    let mut pending_command = None;
 
+    //  Create a temporary directory. Upon exit, files in tmp_dir are deleted
+    let mut tmp_dir = tempfile::Builder::new().prefix("pinetime").tempdir() ? ;
+    
     //  Loop forever processing Telegram and OpenOCD events
     pin_mut!(openocd_task);
     loop {
@@ -60,32 +63,34 @@ async fn main() -> Result<()> {
                     let update = update ? ;
                     println!("----- {:?}", update);
                     if let UpdateKind::Message(message) = update.kind {
+
+                        //  If we received a text message...
                         if let MessageKind::Text { ref data, .. } = message.kind {
-                            //  Show received message
-                            println!("-- <{}>: {}", &message.from.first_name, data);
+                            //  Recreate a temporary directory for downloading the firmware files. The previous downloaded firmware files in tmp_dir are deleted
+                            tmp_dir = tempfile::Builder::new().prefix("pinetime").tempdir() ? ;
     
-                            //  TODO: Handle the Telegram Bot command: /flash 0x0 https://.../firmware.bin
-                            /*
-                            //  Handle the command
-                            match handle_command(&api, &message, data).await {
+                            //  Handle the Telegram Bot command: /flash 0x0 https://.../firmware.bin
+                            match handle_command(&api, &message, data, &tmp_dir).await {
                                 //  Command failed
                                 Err(err) => println!("Error: {}", err),
-                                //  Command succeeded
-                                Ok(_)    => {}
-                            }
-                            */
+
+                                //  If firmware downloaded, prepare to flash
+                                Ok(cmd)  => {
+                                    //  Remember the flash command
+                                    pending_command = cmd;
+
+                                    //  If there is a pending flash command, tell OpenOCD Task to quit
+                                    if pending_command.is_some() && !openocd_task.is_terminated() {
+                                        println!("Send shutdown command to OpenOCD");
+                                        let mut stream = TcpStream::connect("127.0.0.1:4444") ? ;
+                                        stream.write(b"shutdown\r") ? ;
+                                    }
+                            
+                                    //  Let the loop wait for OpenOCD task to quit
+                                    //  TODO: Timeout if OpenOCD task doesn't quit
+                                }
+                            }    
     
-                            //  If valid flash command received...
-                            pending_command = true;
-    
-                            //  Tell OpenOCD Task to quit
-                            if !openocd_task.is_terminated() {
-                                println!("Send exit command to OpenOCD");
-                                let mut stream = TcpStream::connect("127.0.0.1:4444") ? ;
-                                stream.write(b"exit\r") ? ;    
-                            }
-                    
-                            //  Wait for OpenOCD task to quit
                         }
                     }
                 }
@@ -101,30 +106,74 @@ async fn main() -> Result<()> {
         }
 
         println!("Select OK: OpenOCD Task Terminated is {:?}", openocd_task.is_terminated());
-        //  If OpenOCD Task is completed and there is a pending flash command...
-        if openocd_task.is_terminated() && pending_command {
-            pending_command = false;
-            //  TODO: Start a new OpenOCD Task, with the flash command
-            openocd_task.set(transmit_log("test1.sh").fuse());
+        //  If there is a pending flash command and OpenOCD Task is completed...
+        if pending_command.is_some() && openocd_task.is_terminated() {
+            //  Start a new OpenOCD Task with the flash command
+            let cmd = pending_command.unwrap();
+            let task = flash_firmware(
+                cmd.0,  //  Address e.g. 0x0
+                cmd.1   //  Filename e.g. firmware.bin
+            );
+            //  Let the loop wait for the OpenOCD Task to complete
+            openocd_task.set(task.fuse());
+            //  No more pending flash command
+            pending_command = None;
         }
     }
 }
 
+/// Spawn OpenOCD to flash the downloaded firmware to PineTime at the address.
 /// Transmit the Semihosting Log from OpenOCD to Telegram Channel. Based on https://docs.rs/tokio/0.2.22/tokio/process/index.html
-async fn transmit_log(script: &str) -> Result<()> {
-    //  TODO: Spawn the OpenOCD process
-    let mut cmd = Command::new("cargo");
-    let cmd = cmd.arg("test").arg("--").arg("--nocapture");
-    /*
-    let mut cmd = Command::new("bash");
-    let cmd = cmd.arg(script);
-    */
+async fn flash_firmware(addr: String, path: String) -> Result<()> {
+    //  For Raspberry Pi:
+    //  cd $HOME/pinetime-updater
+    //  openocd-spi/bin/openocd \
+    //    -c ' set filename "firmware.bin" ' \
+    //    -c ' set address  "0x0" ' \
+    //    -f scripts/swd-pi.ocd \
+    //    -f scripts/flash-log.ocd
+    #[cfg(target_arch = "arm")]  //  For Raspberry Pi
+    let updater_path = "/pinetime-updater";
 
-    // Specify that we want the command's standard output piped back to us.
-    // By default, standard input/output/error will be inherited from the
-    // current process (for example, this means that standard input will
-    // come from the keyboard and standard output/error will go directly to
-    // the terminal if this process is invoked from the command line).
+    //  For Mac with ST-Link:
+    //  cd $HOME/pinetime/pinetime-updater
+    //  xpack-openocd/bin/openocd \
+    //    -c ' set filename "firmware.bin" ' \
+    //    -c ' set address  "0x0" ' \
+    //    -f scripts/swd-stlink.ocd \
+    //    -f scripts/flash-log.ocd
+    #[cfg(target_arch = "x86_64")]  //  For Mac with ST-Link
+    let updater_path = "/pinetime/pinetime-updater";
+
+    //  Get the path of PineTime Updater. Remember to run "./run.sh" to download xPack OpenOCD or OpenOCD SPI
+    let updater_path = env::var("HOME").expect("HOME not set") + &updater_path;
+
+    //  Spawn OpenOCD as a background process
+    let mut cmd = Command
+        //  ::new(updater_path.clone() + "/openocd-spi/bin/openocd");  //  Raspberry Pi SPI
+        ::new(updater_path.clone() + "/xpack-openocd/bin/openocd");    //  ST-Link
+    let cmd = cmd
+        .current_dir(updater_path)
+        .arg("-c")
+        .arg("set filename \"".to_string() + &path + "\"")
+        .arg("-c")
+        .arg("set address \"".to_string() + &addr + "\"")
+        .arg("-f")
+        //  .arg("scripts/swd-pi.ocd")  //  Raspberry Pi SPI
+        .arg("scripts/swd-stlink.ocd")  //  ST-Link
+        .arg("-f")
+        .arg("scripts/flash-log.ocd");
+
+    //  let mut cmd = Command::new("cargo");
+    //  let cmd = cmd.arg("test").arg("--").arg("--nocapture");
+    //  let mut cmd = Command::new("bash");
+    //  let cmd = cmd.arg(script);
+
+    //  Specify that we want the command's standard output piped back to us.
+    //  By default, standard input/output/error will be inherited from the
+    //  current process (for example, this means that standard input will
+    //  come from the keyboard and standard output/error will go directly to
+    //  the terminal if this process is invoked from the command line).
     cmd.stdout(Stdio::piped());
 
     let mut child = cmd.spawn()
@@ -174,61 +223,11 @@ if let UpdateKind::ChannelPost(post) = update.kind {
 }
 */
 
-/// Previously: Listen for commands and handle them
-#[tokio::main]
-async fn old_main() -> Result<()> {
-    /*
-    let t1 = transmit_log("test1.sh");
-    let t2 = transmit_log("test2.sh");
-    println!("Transmit OK");
+/// Handle a command e.g. "/flash 0x0 https://.../firmware.bin". Return (address, filename).
+async fn handle_command(api: &Api, message: &Message, cmd: &str, tmp_dir: &tempfile::TempDir) -> Result<Option<(String, String)>> {
+    //  Show received message
+    println!("-- <{}>: {}", &message.from.first_name, cmd);
 
-    //  Wait for both tasks to complete
-    let res = try_join!(t1, t2) ? ;
-    println!("Join OK: {:?}", res);
-    */
-
-    let t1 = transmit_log("test1.sh").fuse();
-    let t2 = transmit_log("test2.sh").fuse();
-    println!("Transmit OK");
-
-    //  Wait for either task to complete
-    pin_mut!(t1, t2);
-    select! {
-        _ = t1 => println!("task one completed first"),
-        _ = t2 => println!("task two completed first"),
-    }
-    println!("Select OK");
-  
-    let token = env::var("TELEGRAM_BOT_TOKEN").expect("TELEGRAM_BOT_TOKEN not set");
-    let api = Api::new(token);
-
-    // Fetch new updates via long poll method
-    let mut stream = api.stream();
-    while let Some(update) = stream.next().await {
-        // If the received update contains a new message...
-        let update = update ? ;
-        println!("----- {:?}", update);
-        if let UpdateKind::Message(message) = update.kind {
-            if let MessageKind::Text { ref data, .. } = message.kind {
-                //  Show received message
-                println!("-- <{}>: {}", &message.from.first_name, data);
-
-                //  Handle the command
-                match handle_command(&api, &message, data).await {
-                    //  Command failed
-                    Err(err) => println!("Error: {}", err),
-                    //  Command succeeded
-                    Ok(_)    => {}
-                }
-            }
-        }
-    }
-
-    Ok(())
-}
-
-/// Handle a command e.g. "flash - flash 0x0 https://.../firmware.bin"
-async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<()> {
     //  Remove leading and trailing spaces. Replace multiple spaces by 1.
     let cmd = cmd
         .trim_start()
@@ -248,7 +247,7 @@ async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<()> {
             cmd
         )))
         .await ? ;
-        return Ok(());
+        return Ok(None);  //  Nothing to flash
     }
 
     //  Handle flash command
@@ -260,9 +259,6 @@ async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<()> {
     )))
     .await ? ;
 
-    //  Create a temporary directory
-    let tmp_dir = tempfile::Builder::new().prefix("pinetime").tempdir() ? ;
-
     //  Download the firmware
     match download_file(firmware, &tmp_dir).await {
         Err(_) => {  //  Unable to download
@@ -270,7 +266,7 @@ async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<()> {
                 "Unable to download {}", firmware
             )))
             .await ? ;
-            Ok(())
+            Ok(None)  //  Nothing to flash
         }
         Ok(path) => {  //  Download OK
             //  Flash the firmware and reboot PineTime
@@ -279,81 +275,9 @@ async fn handle_command(api: &Api, message: &Message, cmd: &str) -> Result<()> {
             )))
             .await ? ;
             println!("path={}", path);
-            match flash_firmware(addr, &path).await {
-                Err(err) => {  //  Flash failed
-                    println!("Error: {:?}", err);
-                    api.send(message.text_reply(format!(
-                        "Error: {}", err
-                    )))
-                    .await ? ;
-                    Ok(())        
-                }
-                Ok(output) => {  //  Flash OK
-                    //  Show the output
-                    api.send(message.text_reply("Output: ".to_string() + &output)).await ? ;
-                    Ok(())
-                }
-            }
+            Ok(Some((addr.to_string(), path)))  //  Flash the firmware at the address
         }
     }
-    //  Upon exit, files in tmp_dir are deleted
-}
-
-/// Flash the downloaded firmware to PineTime at the address
-async fn flash_firmware(addr: &str, path: &str) -> Result<String> {
-    //  For Raspberry Pi:
-    //  cd $HOME/pinetime-updater
-    //  openocd-spi/bin/openocd 
-    //    -c ' set filename "firmware.bin" ' 
-    //    -c ' set address  "0x0" ' 
-    //    -f scripts/swd-pi.ocd 
-    //    -f scripts/flash-program.ocd
-    #[cfg(target_arch = "arm")]  //  For Raspberry Pi
-    let updater_path = "/pinetime-updater";
-
-    //  For Mac with ST-Link:
-    //  cd $HOME/pinetime/pinetime-updater
-    //  xpack-openocd/bin/openocd
-    //    -c ' set filename "firmware.bin" ' 
-    //    -c ' set address  "0x0" ' 
-    //    -f scripts/swd-stlink.ocd 
-    //    -f scripts/flash-program.ocd
-    #[cfg(target_arch = "x86_64")]  //  For Mac with ST-Link
-    let updater_path = "/pinetime/pinetime-updater";
-
-    //  Get the path of PineTime Updater. Remember to run "./run.sh" to download xPack OpenOCD or OpenOCD SPI
-    let updater_path = env::var("HOME").expect("HOME not set") + &updater_path;
-
-    //  Run the command and wait for output
-    let output = std::process::Command
-        //  ::new(updater_path.clone() + "/openocd-spi/bin/openocd")  //  Raspberry Pi SPI
-        ::new(updater_path.clone() + "/xpack-openocd/bin/openocd")    //  ST-Link
-        .current_dir(updater_path)
-        .arg("-c")
-        .arg("set filename \"".to_string() + path + "\"")
-        .arg("-c")
-        .arg("set address \"".to_string() + addr + "\"")
-        .arg("-f")
-        //  .arg("scripts/swd-pi.ocd")  //  Raspberry Pi SPI
-        .arg("scripts/swd-stlink.ocd")  //  ST-Link
-        .arg("-f")
-        .arg("scripts/flash-program.ocd")
-        .output() ? ;
-
-    //  If command failed, dump stderr
-    if !output.status.success() {
-        println!("Output: {:?}", output);
-        let error = String::from_utf8(output.stderr).unwrap();
-        error_chain::bail!(error);
-    }
-
-    //  If command succeeded, dump stdout and stderr
-    println!("Output: {:?}", output);
-    let output = 
-        String::from_utf8(output.stdout).unwrap() + "\n" +
-        &String::from_utf8(output.stderr).unwrap();
-    println!("Output: {}", output);
-    Ok(output)
 }
 
 /// Download the URL to the temporary directory. Returns the downloaded pathname.

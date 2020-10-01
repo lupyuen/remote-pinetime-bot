@@ -100,9 +100,9 @@ cd ~/remote-pinetime-bot
 for (( ; ; ))
 do
     git pull
+    pkill openocd
     cargo run
     echo "---------ERROR--------"
-    pkill openocd
     sleep 30
 done
 ```
