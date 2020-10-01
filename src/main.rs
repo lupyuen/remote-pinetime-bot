@@ -114,7 +114,8 @@ async fn main() -> Result<()> {
             let task = flash_firmware(
                 &api,
                 cmd.0,  //  Address e.g. 0x0
-                cmd.1   //  Filename e.g. firmware.bin
+                cmd.1,  //  Filename e.g. firmware.bin
+                cmd.2   //  URL e.g. https://.../firmware.bin
             );
             //  Let the loop wait for the OpenOCD Task to complete
             openocd_task.set(task.fuse());
@@ -126,7 +127,7 @@ async fn main() -> Result<()> {
 
 /// Spawn OpenOCD to flash the downloaded firmware to PineTime at the address.
 /// Transmit the Semihosting Log from OpenOCD to Telegram Channel. Based on https://docs.rs/tokio/0.2.22/tokio/process/index.html
-async fn flash_firmware(api: &Api, addr: String, path: String) -> Result<()> {
+async fn flash_firmware(api: &Api, addr: String, path: String, url: String) -> Result<()> {
     //  For Raspberry Pi:
     //  cd $HOME/pinetime-updater
     //  openocd-spi/bin/openocd \
@@ -208,6 +209,16 @@ async fn flash_firmware(api: &Api, addr: String, path: String) -> Result<()> {
         username:       Some( "remotepinetimelog".to_string() ), 
         invite_link:    None
     };
+    api.send(
+        SendMessage::new(
+            channel.clone(), 
+            format!(
+                "*** Flashing {} to PineTime at address {}...",
+                url, addr
+            )
+        )
+    )    
+    .await ? ;
 
     //  Transmit each line of OpenOCD output to the Telegram Channel
     let mut start = Instant::now();
@@ -220,8 +231,10 @@ async fn flash_firmware(api: &Api, addr: String, path: String) -> Result<()> {
         //  Transmit in chunks of 2-second interval, because Telegram server would return "Too Many Requests" error
         if start.elapsed() >= Duration::from_secs(2) {
             api.send(
-                SendMessage::new(channel.clone(), 
-                buf)
+                SendMessage::new(
+                    channel.clone(), 
+                    buf
+                )
             )    
             .await ? ;    
             start = Instant::now();
@@ -243,8 +256,8 @@ async fn flash_firmware(api: &Api, addr: String, path: String) -> Result<()> {
     Ok(())
 }
 
-/// Handle a command e.g. "/flash 0x0 https://.../firmware.bin". Return (address, filename).
-async fn handle_command(api: &Api, message: &Message, cmd: &str, tmp_dir: &tempfile::TempDir) -> Result<Option<(String, String)>> {
+/// Handle a command e.g. "/flash 0x0 https://.../firmware.bin". Return (address, filename, url).
+async fn handle_command(api: &Api, message: &Message, cmd: &str, tmp_dir: &tempfile::TempDir) -> Result<Option<(String, String, String)>> {
     //  Show received message
     println!("-- <{}>: {}", &message.from.first_name, cmd);
 
@@ -297,7 +310,7 @@ async fn handle_command(api: &Api, message: &Message, cmd: &str, tmp_dir: &tempf
             .await ? ;
             */
             println!("path={}", path);
-            Ok(Some((addr.to_string(), path)))  //  Flash the firmware at the address
+            Ok(Some((addr.to_string(), path, firmware.to_string())))  //  Flash the firmware at the address
         }
     }
 }
