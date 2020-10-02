@@ -92,6 +92,85 @@ Got questions on PineTime? Chat with the PineTime Community on Matrix / Discord 
 
 https://wiki.pine64.org/index.php/PineTime#Community
 
+## What is Arm Semihosting?
+
+[Arm Semihosting](https://www.keil.com/support/man/docs/armcc/armcc_pge1358787046598.htm) enables our firmware to emit debugging messages by invoking the Arm Cortex-M Instruction `bkpt`.
+
+Check out this implementation of Arm Semihosting from [`pinetime-rust-mynewt`](https://github.com/lupyuen/pinetime-rust-mynewt/blob/master/libs/semihosting_console/src/semihosting_console.c#L52-L73)...
+
+```c
+/// Send an ARM Semihosting command to the debugger, e.g. to print a message.
+/// To see the message you need to run opencd:
+/// openocd -f interface/stlink-v2.cfg -f target/stm32f1x.cfg -f scripts/debug.ocd
+static int __semihost(int command, void* message) {
+	//  Warning: This code will trigger a breakpoint and hang unless a debugger is connected.
+	//  That's how ARM Semihosting sends a command to the debugger to print a message.
+	//  This code MUST be disabled on production devices.
+    __asm( 
+      "mov r0, %[cmd] \n"
+      "mov r1, %[msg] \n" 
+      "bkpt #0xAB \n"
+	:  //  Output operand list: (nothing)
+	:  //  Input operand list:
+		[cmd] "r" (command), 
+		[msg] "r" (message)
+	:  //  Clobbered register list:
+		"r0", "r1", "memory"
+	);
+	return 0;
+}
+```
+
+We call `__semihost()` like so: [`semihosting_console.c`](https://github.com/lupyuen/pinetime-rust-mynewt/blob/master/libs/semihosting_console/src/semihosting_console.c#L77-L113)
+
+```c
+/// ARM Semihosting Command
+#define SYS_WRITE  (0x5)
+
+/// Write "length" number of bytes from "buffer" to the debugger's file handle fh.
+/// We set fh=2 to write to the debugger's stderr output.
+static int semihost_write(uint32_t fh, const unsigned char *buffer, unsigned int length) {
+    if (!debugger_connected()) { return 0; }  //  If debugger is not connected, quit.
+    if (length == 0) { return 0; }
+    uint32_t args[3];
+    args[0] = (uint32_t)fh;
+    args[1] = (uint32_t)buffer;
+    args[2] = (uint32_t)length;
+    return __semihost(SYS_WRITE, args);
+}
+
+//  Return non-zero if debugger is connected. From repos/apache-mynewt-core/hw/mcu/ambiq/apollo2/src/hal_system.c
+static int debugger_connected(void) {
+    return CoreDebug->DHCSR & CoreDebug_DHCSR_C_DEBUGEN_Msk;
+}
+```
+
+When we call...
+
+```c
+/// Write "hello\n" (6 characters) to the debugger's stderr output.
+#define SEMIHOST_HANDLE 2
+semihost_write(SEMIHOST_HANDLE, (const unsigned char *) "hello\n", 6);
+```
+
+We'll see the the message `hello` appear in OpenOCD. (Messages must end with a newline or they won't appear)
+
+Arm Semihosting needs to be enabled in OpenOCD. Here's Remote PineTime enables Arm Semihosting: [`flash-log.ocd`](https://github.com/lupyuen/pinetime-updater/blob/master/scripts/flash-log.ocd)
+
+```
+$_TARGETNAME configure -event reset-init {
+    # Arm Semihosting is used to show debug console output and may only be enabled after init event.  We wait for the event and enable Arm Semihosting.
+    echo "Enabled ARM Semihosting to show debug output"
+    arm semihosting enable
+}
+```
+
+Arm Semihosting can be slow... The entire microcontroller freezes while the debug messages are transmitted character by character to OpenOCD via the SWD port.
+
+We recommend using a static array to buffer the outgoing messages in memory.
+
+In the [`pinetime-rust-mynewt`](https://github.com/lupyuen/pinetime-rust-mynewt/blob/master/libs/semihosting_console/src/semihosting_console.c#L137-L155) implementation of Arm Semihosting, we use [Mynewt Mbufs](https://mynewt.apache.org/latest/os/core_os/mbuf/mbuf.html) to buffer the messages efficiently.
+
 ## Start Telegram Bot
 
 To create your own Telegram Bot...
