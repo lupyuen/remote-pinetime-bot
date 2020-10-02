@@ -139,7 +139,7 @@ static int semihost_write(uint32_t fh, const unsigned char *buffer, unsigned int
     return __semihost(SYS_WRITE, args);
 }
 
-//  Return non-zero if debugger is connected. From repos/apache-mynewt-core/hw/mcu/ambiq/apollo2/src/hal_system.c
+/// Return non-zero if debugger is connected. From repos/apache-mynewt-core/hw/mcu/ambiq/apollo2/src/hal_system.c
 static int debugger_connected(void) {
     return CoreDebug->DHCSR & CoreDebug_DHCSR_C_DEBUGEN_Msk;
 }
