@@ -153,19 +153,20 @@ When we call...
 semihost_write(SEMIHOST_HANDLE, (const unsigned char *) "hello\n", 6);
 ```
 
-We'll see the the message `hello` appear in OpenOCD. (Messages must end with a newline or they won't appear)
+We'll see the the message `hello` appear in OpenOCD and the Remote PineTime Log. (Messages must end with a newline or they won't appear)
 
-Arm Semihosting needs to be enabled in OpenOCD. Here's Remote PineTime enables Arm Semihosting: [`flash-log.ocd`](https://github.com/lupyuen/pinetime-updater/blob/master/scripts/flash-log.ocd)
+Arm Semihosting needs to be enabled in OpenOCD. Here's how Remote PineTime enables Arm Semihosting: [`flash-log.ocd`](https://github.com/lupyuen/pinetime-updater/blob/master/scripts/flash-log.ocd)
 
 ```
+# Arm Semihosting is used to show debug console output and may only be enabled after the init event.
+# We wait for the event and enable Arm Semihosting.
 $_TARGETNAME configure -event reset-init {
-    # Arm Semihosting is used to show debug console output and may only be enabled after init event.  We wait for the event and enable Arm Semihosting.
     echo "Enabled ARM Semihosting to show debug output"
     arm semihosting enable
 }
 ```
 
-Arm Semihosting can be slow... The entire microcontroller freezes while the debug messages are transmitted character by character to OpenOCD via the SWD port.
+Arm Semihosting can be slow... The entire microcontroller freezes while the debug message is transmitted character by character to OpenOCD via the SWD port.
 
 We recommend using a static array to buffer the outgoing messages in memory.
 
