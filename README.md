@@ -103,19 +103,19 @@ Check out this implementation of Arm Semihosting from [`pinetime-rust-mynewt`](h
 /// To see the message you need to run opencd:
 /// openocd -f interface/stlink-v2.cfg -f target/stm32f1x.cfg -f scripts/debug.ocd
 static int __semihost(int command, void* message) {
-	//  Warning: This code will trigger a breakpoint and hang unless a debugger is connected.
-	//  That's how ARM Semihosting sends a command to the debugger to print a message.
-	//  This code MUST be disabled on production devices.
+    //  Warning: This code will trigger a breakpoint and hang unless a debugger is connected.
+    //  That's how ARM Semihosting sends a command to the debugger to print a message.
+    //  This code MUST be disabled on production devices.
     __asm( 
-      "mov r0, %[cmd] \n"
-      "mov r1, %[msg] \n" 
-      "bkpt #0xAB \n"
+        "mov r0, %[cmd] \n"
+        "mov r1, %[msg] \n" 
+        "bkpt #0xAB \n"
 	:  //  Output operand list: (nothing)
 	:  //  Input operand list:
-		[cmd] "r" (command), 
-		[msg] "r" (message)
+        [cmd] "r" (command), 
+        [msg] "r" (message)
 	:  //  Clobbered register list:
-		"r0", "r1", "memory"
+        "r0", "r1", "memory"
 	);
 	return 0;
 }
@@ -130,12 +130,13 @@ We call `__semihost()` like so: [`semihosting_console.c`](https://github.com/lup
 /// Write "length" number of bytes from "buffer" to the debugger's file handle fh.
 /// We set fh=2 to write to the debugger's stderr output.
 static int semihost_write(uint32_t fh, const unsigned char *buffer, unsigned int length) {
-    if (!debugger_connected()) { return 0; }  //  If debugger is not connected, quit.
+    //  If debugger is not connected, quit.
+    if (!debugger_connected()) { return 0; }
     if (length == 0) { return 0; }
     uint32_t args[3];
-    args[0] = (uint32_t)fh;
-    args[1] = (uint32_t)buffer;
-    args[2] = (uint32_t)length;
+    args[0] = (uint32_t) fh;
+    args[1] = (uint32_t) buffer;
+    args[2] = (uint32_t) length;
     return __semihost(SYS_WRITE, args);
 }
 
