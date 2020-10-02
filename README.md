@@ -94,8 +94,6 @@ https://wiki.pine64.org/index.php/PineTime#Community
 
 ## Start Telegram Bot
 
-Note: The latest version of the bot that transmits Semihosting Debug Messages is in the `log` branch
-
 To create your own Telegram Bot...
 
 1. Chat with BotFather, create a bot named `PineTime Bot`
