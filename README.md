@@ -173,6 +173,8 @@ We recommend using a static array to buffer the outgoing messages in memory.
 
 In the [`pinetime-rust-mynewt`](https://github.com/lupyuen/pinetime-rust-mynewt/blob/master/libs/semihosting_console/src/semihosting_console.c#L137-L155) implementation of Arm Semihosting, we use [Mynewt Mbufs](https://mynewt.apache.org/latest/os/core_os/mbuf/mbuf.html) to buffer the messages efficiently.
 
+Don't use Arm Semihosting when Bluetooth LE processing is ongoing... Messages will be dropped and Bluetooth LE clients will automatically disconnect.
+
 ## Start Telegram Bot
 
 To create your own Telegram Bot...
@@ -264,10 +266,10 @@ How to make the Papier-Mâché Enclosure...
 
 ![Making the Remote PineTime Enclosure](https://lupyuen.github.io/images/remote-pinetime-enclosure2.jpg)
 
-## TODO
+## Completed Features
 
 1. Write Semihosting Debug Log to a separate Telegram Channel
 
-1. Throttle the number of Semihosting messages that will be logged to the Telegram Channel
+1. Throttle the number of Semihosting messages that will be logged to the Telegram Channel (2 messages per second)
 
 1. Allow Semihosting Debug Log and Firmware Flashing to coexist (they both use OpenOCD)
