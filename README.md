@@ -175,6 +175,8 @@ In the [`pinetime-rust-mynewt`](https://github.com/lupyuen/pinetime-rust-mynewt/
 
 Don't use Arm Semihosting when Bluetooth LE processing is ongoing... Messages will be dropped and Bluetooth LE clients will automatically disconnect.
 
+Arm Semihosting should be disabled in production firmware. Also, Arm Semihosting may hang when a JLink debugger is connected. For `pinetime-rust-mynewt` we disable Arm Semihosting with the GCC flag `-DDISABLE_SEMIHOSTING` in [`targets/nrf52_boot/pkg.yml`](https://github.com/lupyuen/pinetime-rust-mynewt/blob/master/targets/nrf52_boot/pkg.yml) (for the MCUBoot Bootloader) and in [`targets/nrf52_my_sensor/pkg.yml`](https://github.com/lupyuen/pinetime-rust-mynewt/blob/master/targets/nrf52_my_sensor/pkg.yml) (for the Application Firmware).
+
 ## Start Telegram Bot
 
 To create your own Telegram Bot...
