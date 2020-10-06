@@ -286,6 +286,24 @@ How to make the Papier-Mâché Enclosure...
 
 ![Making the Remote PineTime Enclosure](https://lupyuen.github.io/images/remote-pinetime-enclosure2.jpg)
 
+## Security Issues
+
+Are there any security issues exposing a Telegram Bot to the world for flashing and testing?
+
+We mitigate the security risks as much as possible...
+
+1. Our Telegram Bot is built with Rust, a secure systems programming language
+
+1. No remote access to the host is allowed. The Telegram Bot polls for `/flash` commands and executes them.
+
+1. Temporary files are automatically deleted after use with the [`tempfile`](https://crates.io/crates/tempfile) library. So we reduce the exposure of files with malware.
+
+But there is one concern... Our PineTime may be flashed with malware that attacks other Bluetooth devices nearby.
+
+For the sake of IoT Education... I'll allow it! :-) 
+
+I'm fully aware of the risks when I operate this free service. And if you choose to operate your own Remote PineTime, you should be aware of the risks too.
+
 ## Completed Features
 
 1. Write Semihosting Debug Log to a separate Telegram Channel
