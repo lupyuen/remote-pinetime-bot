@@ -52,15 +52,7 @@ To flash [Breakout on PineTime](https://github.com/TT-392/TT-time)...
 /flash 0x0 http://tt-392.space/breakout.hex
 ```
 
-[Demo Video of Breakout of PineTime](https://www.youtube.com/watch?v=5rt6C1FeglM)
-
-To flash [MCUBoot Bootloader](https://lupyuen.github.io/pinetime-rust-mynewt/articles/mcuboot) 5.0.4...
-
-```
-/flash 0x0 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v5.0.4/mynewt.elf.bin
-```
-
-Sometimes PineTime will get locked up due to firmware errors. Flashing the above MCUBoot Booloader should fix the locking.
+[Demo Video of Breakout on PineTime](https://www.youtube.com/watch?v=5rt6C1FeglM)
 
 To flash a modified "MIND BLOWN" [InfiniTime Firmware](https://github.com/JF002/Pinetime) that never sleeps...
 
@@ -85,6 +77,14 @@ To flash `pinetime-rust-mynewt` firmware that emits Semihosting Debug Messages..
 
 /flash 0x8000 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v4.1.1/my_sensor_app.img
 ```
+
+To flash [MCUBoot Bootloader](https://lupyuen.github.io/pinetime-rust-mynewt/articles/mcuboot) 5.0.4...
+
+```
+/flash 0x0 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v5.0.4/mynewt.elf.bin
+```
+
+Sometimes PineTime will get locked up due to firmware errors. Flashing the above MCUBoot Booloader should fix the locking.
 
 To build your own firmware in a web browser (without installing any IDE or toolchain) check out the articles...
 
