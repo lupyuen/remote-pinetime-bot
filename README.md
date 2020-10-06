@@ -106,7 +106,11 @@ https://wiki.pine64.org/index.php/PineTime#Community
 
 ## Why was Remote PineTime created?
 
-Because it's difficult and expensive to ship real hardware around the world during the pandemic... And remote firmware testing could be the solution. Check out my video presentation...
+Because it's difficult and expensive to ship real hardware around the world during the pandemic... And remote firmware testing could be the solution.
+
+Remote PineTime was created to allow people to learn and experiment with smartwatch coding without having a real smartwatch.
+
+Check out my video presentation...
 
 [RIOT Summit 2020 - Safer & Simpler Embedded Programs with Rust on RIOT](https://youtu.be/LvfCSnOM1Hs)
 
