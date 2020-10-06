@@ -292,9 +292,11 @@ Are there any security issues exposing a Telegram Bot to the world for flashing 
 
 We mitigate the security risks as much as possible...
 
-1. Our Telegram Bot is built with Rust, a secure systems programming language
+1. Our Telegram Bot is built with Rust, a secure systems programming language.
 
-1. No remote access to the host is allowed. The Telegram Bot polls for `/flash` commands and executes them.
+   Check out the Rust source code at [`src/main.rs`](src/main.rs)
+
+1. No remote access to the host is allowed. The Telegram Bot only polls for `/flash` commands and executes them.
 
 1. Temporary files are automatically deleted after use with the [`tempfile`](https://crates.io/crates/tempfile) library. So we reduce the exposure of files with malware.
 
