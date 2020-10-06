@@ -64,18 +64,18 @@ To flash a modified "MIND BLOWN" [InfiniTime Firmware](https://github.com/JF002/
 
 This was modified by editing [`src/DisplayApp/DisplayApp.cpp`](https://github.com/AntonMadness/Pinetime/blob/master/src/DisplayApp/DisplayApp.cpp) to remove all calls to `case Messages::GoToSleep:`
 
-To flash [Rust on RIOT](https://github.com/lupyuen/pinetime-rust-riot)...
-
-```
-/flash 0x0 https://github.com/lupyuen/pinetime-rust-riot/releases/download/v1.0.3/PineTime.bin
-```
-
-To flash `pinetime-rust-mynewt` firmware that emits Semihosting Debug Messages...
+To flash [Rust on Mynewt Firmware](https://github.com/lupyuen/pinetime-rust-mynewt) that emits Semihosting Debug Messages...
 
 ```
 /flash 0x0 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v5.0.4/mynewt.elf.bin
 
-/flash 0x8000 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v4.1.1/my_sensor_app.img
+/flash 0x8000 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v5.0.7/my_sensor_app.img
+```
+
+To flash [Rust on RIOT](https://github.com/lupyuen/pinetime-rust-riot)...
+
+```
+/flash 0x0 https://github.com/lupyuen/pinetime-rust-riot/releases/download/v1.0.3/PineTime.bin
 ```
 
 To flash [MCUBoot Bootloader](https://lupyuen.github.io/pinetime-rust-mynewt/articles/mcuboot) 5.0.4...
