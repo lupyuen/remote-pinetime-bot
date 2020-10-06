@@ -104,6 +104,12 @@ https://wiki.pine64.org/index.php/PineTime#Community
 
 [Check out my PineTime articles](https://lupyuen.github.io)
 
+## Why was Remote PineTime created?
+
+Because it's difficult to ship real hardware around the world during the pandemic... And remote firmware testing could be the solution. Check out my video presentation...
+
+[RIOT Summit 2020 - Safer & Simpler Embedded Programs with Rust on RIOT](https://youtu.be/LvfCSnOM1Hs)
+
 ## What is Arm Semihosting?
 
 [Arm Semihosting](https://www.keil.com/support/man/docs/armcc/armcc_pge1358787046598.htm) enables our firmware to emit debugging messages by invoking the Arm Cortex-M Instruction `bkpt`.
