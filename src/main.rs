@@ -228,7 +228,8 @@ async fn flash_firmware(api: &Api, addr: String, path: String, url: String) -> R
         buf.push_str(&line); buf.push_str("\n");
 
         //  Transmit in chunks of 2-second interval, because Telegram server would return "Too Many Requests" error
-        if start.elapsed() >= Duration::from_secs(2) {
+        if start.elapsed() >= Duration::from_secs(2) ||
+            line.contains("***") {  //  Also transmit messages like "*** Done"
             api.send(
                 SendMessage::new(
                     channel.clone(), 
