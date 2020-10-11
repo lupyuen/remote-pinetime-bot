@@ -316,6 +316,6 @@ I'm fully aware of the risks when I operate this free service. And if you choose
 
 1. Write Semihosting Debug Log to a separate Telegram Channel
 
-1. Throttle the number of Semihosting messages that will be logged to the Telegram Channel (2 messages per second)
+1. Throttle the number of Semihosting messages that will be logged to the Telegram Channel (aggregates and transmits the messages as a single Telegram request every 5 seconds)
 
 1. Allow Semihosting Debug Log and Firmware Flashing to coexist (they both use OpenOCD)

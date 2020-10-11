@@ -98,6 +98,9 @@ async fn main() -> Result<()> {
 
             //  If OpenOCD Task completed...
             openocd_result = openocd_task => {
+                if let Err(err) = openocd_result {
+                    panic!("OpenOCD task failed: {:?}", err);
+                }
                 println!("OpenOCD task completed: {:?}", openocd_result);
             },
 
@@ -227,8 +230,8 @@ async fn flash_firmware(api: &Api, addr: String, path: String, url: String) -> R
         println!("Line: {}", line);
         buf.push_str(&line); buf.push_str("\n");
 
-        //  Transmit in chunks of 2-second interval, because Telegram server would return "Too Many Requests" error
-        if start.elapsed() >= Duration::from_secs(2) ||
+        //  Transmit in 5-second intervals, because Telegram server would return "Too Many Requests" error
+        if start.elapsed() >= Duration::from_secs(5) ||
             line.contains("***") {  //  Also transmit messages like "*** Done"
             api.send(
                 SendMessage::new(
