@@ -20,7 +20,7 @@ https://t.me/remotepinetimelog
 
 And watch the "Remote PineTime" live stream on YouTube...
 
-https://youtu.be/M-oWBTtCAys
+https://youtu.be/M-oWBTtCAys __(REMOTE PINETIME IS DOWN DUE TO POWER SHUTDOWN... CHECK BACK AGAIN IN 6 HOURS)__
 
 The live stream URL will change whenever I reboot my Raspberry Pi. Please check this page for the updated live stream URL.
 
