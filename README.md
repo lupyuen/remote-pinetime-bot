@@ -1,6 +1,6 @@
 ![Remote PineTime Live Stream](https://lupyuen.github.io/images/remote-pinetime-youtube.png)
 
-# Remote PineTime: Flash and Test a PineTime Smart Watch remotely, from anywhere in the world
+# Remote PineTime: Flash and Test a PineTime Smart Watch remotely
 
 1.  Watch the Live Stream (The URL will change whenever I reboot my machine... Check this page for updates)
 
