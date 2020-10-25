@@ -2,13 +2,17 @@
 
 # Remote PineTime: Flash and Test a PineTime Smart Watch remotely, from anywhere in the world
 
-1. Watch the Live Stream (The URL will change whenever I reboot my machine... Check this page for updates)
+1.  Watch the Live Stream (The URL will change whenever I reboot my machine... Check this page for updates)
 
    https://youtu.be/aAKcq4yhtcU   
 
-1. Flash your firmware via Telegram: https://t.me/remotepinetime
+1.  Flash your firmware via Telegram...
 
-1. View the PineTime log: https://t.me/remotepinetimelog
+    https://t.me/remotepinetime
+
+1.  View the PineTime log...
+
+    https://t.me/remotepinetimelog
 
 ![Telegram Bot to flash and test PineTime firmware remotely](https://lupyuen.github.io/images/remote-pinetime-arch.jpg)
 
