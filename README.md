@@ -2,9 +2,9 @@
 
 # Remote PineTime: Flash and Test a PineTime Smart Watch remotely, from anywhere in the world
 
-1. Watch the Live Stream: https://youtu.be/aAKcq4yhtcU
+1. Watch the Live Stream (The URL will change whenever I reboot my machine... Check this page for updates)
 
-   The live stream URL will change whenever I reboot my Raspberry Pi. Please check this page for the updated live stream URL.
+   https://youtu.be/aAKcq4yhtcU   
 
 1. Flash your firmware via Telegram: https://t.me/remotepinetime
 
