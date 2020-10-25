@@ -4,7 +4,7 @@
 
 1.  Watch the Live Stream (The URL will change whenever I reboot my machine... Check this page for updates)
 
-   https://youtu.be/aAKcq4yhtcU   
+    https://youtu.be/aAKcq4yhtcU   
 
 1.  Flash your firmware via Telegram...
 
