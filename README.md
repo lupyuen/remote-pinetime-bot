@@ -48,6 +48,8 @@ MCUBoot-Compatible Firmware should be flashed to address `0x8000`
 
 ## Sample Firmware
 
+### Breakout
+
 To flash [Breakout on PineTime](https://github.com/TT-392/TT-time)...
 
 ```
@@ -55,6 +57,22 @@ To flash [Breakout on PineTime](https://github.com/TT-392/TT-time)...
 ```
 
 [Demo Video of Breakout on PineTime](https://www.youtube.com/watch?v=5rt6C1FeglM)
+
+### Hand-Drawn Watch Face
+
+![Hand-Drawn Watch Face](https://lupyuen.github.io/images/handdrawn-title.png)
+
+To flash [Hand-Drawn Watch Face](https://lupyuen.github.io/pinetime-rust-mynewt/articles/handdrawn)...
+
+```
+/flash 0x0 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v5.0.4/mynewt.elf.bin
+
+/flash 0x8000 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v7.0.1/my_sensor_app.img
+```
+
+[More about Hand-Drawn Watch Face](https://lupyuen.github.io/pinetime-rust-mynewt/articles/handdrawn)
+
+### InfiniTime
 
 To flash a modified "MIND BLOWN" [InfiniTime Firmware](https://github.com/JF002/Pinetime) that never sleeps...
 
@@ -66,6 +84,8 @@ To flash a modified "MIND BLOWN" [InfiniTime Firmware](https://github.com/JF002/
 
 This was modified by editing [`src/DisplayApp/DisplayApp.cpp`](https://github.com/AntonMadness/Pinetime/blob/master/src/DisplayApp/DisplayApp.cpp) to remove all calls to `case Messages::GoToSleep:`
 
+### Rust on Mynewt
+
 To flash [Rust on Mynewt Firmware](https://github.com/lupyuen/pinetime-rust-mynewt) that emits Semihosting Debug Messages...
 
 ```
@@ -74,11 +94,15 @@ To flash [Rust on Mynewt Firmware](https://github.com/lupyuen/pinetime-rust-myne
 /flash 0x8000 https://github.com/lupyuen/pinetime-rust-mynewt/releases/download/v5.0.7/my_sensor_app.img
 ```
 
+### Rust on RIOT
+
 To flash [Rust on RIOT](https://github.com/lupyuen/pinetime-rust-riot)...
 
 ```
 /flash 0x0 https://github.com/lupyuen/pinetime-rust-riot/releases/download/v1.0.3/PineTime.bin
 ```
+
+### MCUBoot Bootloader
 
 To flash [MCUBoot Bootloader](https://lupyuen.github.io/pinetime-rust-mynewt/articles/mcuboot) 5.0.4...
 
