@@ -60,7 +60,7 @@ To flash [Breakout on PineTime](https://github.com/TT-392/TT-time)...
 
 ### Hand-Drawn Watch Face
 
-![Hand-Drawn Watch Face](https://lupyuen.github.io/images/handdrawn-title.png)
+<img width=300 src="https://lupyuen.github.io/images/handdrawn-title.png" />
 
 To flash [Hand-Drawn Watch Face](https://lupyuen.github.io/pinetime-rust-mynewt/articles/handdrawn)...
 
