@@ -62,7 +62,7 @@ To flash [Breakout on PineTime](https://github.com/TT-392/TT-time)...
 
 ### Hand-Drawn Watch Face
 
-<img width=300 src="https://lupyuen.github.io/images/handdrawn-title.png" />
+<img height=250 src="https://lupyuen.github.io/images/handdrawn-title.png" />
 
 To flash [Hand-Drawn Watch Face](https://lupyuen.github.io/pinetime-rust-mynewt/articles/handdrawn)...
 
@@ -97,6 +97,8 @@ To flash [Rust on Mynewt Firmware](https://github.com/lupyuen/pinetime-rust-myne
 ```
 
 ### Rust on RIOT
+
+<img height=250 src="https://lupyuen.github.io/images/remote-pinetime-youtube.png" />
 
 To flash [Rust on RIOT](https://github.com/lupyuen/pinetime-rust-riot)...
 
