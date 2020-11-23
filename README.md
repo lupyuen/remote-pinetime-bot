@@ -2,19 +2,7 @@
 
 # Remote PineTime: Flash and Test a PineTime Smart Watch remotely
 
-1.  Watch the Live Stream...
-
-    https://youtu.be/0OY0URZq6X0
-    
-    (The URL will change whenever I reboot my machine... Check this page for updates)
-
-1.  Flash your firmware via Telegram...
-
-    https://t.me/remotepinetime
-
-1.  View the PineTime log...
-
-    https://t.me/remotepinetimelog
+__Remote PineTime is no longer in operation. Thanks everyone for testing Remote PineTime!__
 
 ![Telegram Bot to flash and test PineTime firmware remotely](https://lupyuen.github.io/images/remote-pinetime-arch.jpg)
 
@@ -22,9 +10,9 @@ Remote PineTime is a [PineTime Smart Watch](https://wiki.pine64.org/index.php/Pi
 
 The Remote PineTime Bot (created in Rust) watches a Telegram group for flashing commands and flashes the firmware to PineTime. 
 
-The display on PineTime is streamed live to YouTube (see above URL), so you can watch your firmware running live on my PineTime.
+The display on PineTime is streamed live to YouTube, so you can watch your firmware running live on my PineTime.
 
-To flash your own firmware and test the PineTime in my bedroom, join the "Remote PineTime" Telegram group: https://t.me/remotepinetime
+To flash your own firmware and test PineTime, join the "Remote PineTime" Telegram group: https://t.me/remotepinetime
 
 The flashing log (from OpenOCD) and debug message log (from Arm Semihosting) will be shown in the "Remote PineTime Log" Telegram Channel here: https://t.me/remotepinetimelog
 
