@@ -330,6 +330,12 @@ For the sake of IoT Education... I'll allow it! :-)
 
 I'm fully aware of the risks when I operate this free service. And if you choose to operate your own Remote PineTime, you should be aware of the risks too.
 
+## Semihosting Security
+
+There is one serious security issue concerning Semihosting support: The Semihosting API supports [reading, writing and executing files](https://www.keil.com/support/man/docs/armcc/armcc_pge1358787059782.htm) on the OpenOCD host (Raspberry Pi).
+
+This security issue has not been resolved. The workaround is to disable Semihosting support in OpenOCD, which would also disable debugging messages.
+
 ## Completed Features
 
 1. Write Semihosting Debug Log to a separate Telegram Channel
